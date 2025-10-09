@@ -48,15 +48,15 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails }) => {
           {/* Job Info */}
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
+              <h3 className="text-xl  font-montserrat font-bold text-gray-800">{job.title}</h3>
               <span className={`${getTypeBadgeColor(job.type)} px-3 py-1 rounded-full text-xs font-medium`}>
                 {job.type}
               </span>
             </div>
             
-            <p className="text-gray-700 font-medium mb-2">{job.company}</p>
+            <p className=" font-montserrat text-gray-700 font-medium mb-2">{job.company}</p>
             
-            <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-4 text-sm font-montserrat text-gray-500">
               <div className="flex items-center gap-1">
                 <MapPin size={16} />
                 <span>{job.location}</span>
@@ -71,13 +71,13 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails }) => {
       </div>
 
       {/* Description */}
-      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+      <p className=" font-montserrat text-gray-600 text-sm mb-4 line-clamp-2">
         {job.description}
       </p>
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-4 border-t">
-        <div className="flex items-center gap-2 text-gray-500 text-sm">
+        <div className="flex items-center gap-2 font-montserrat text-gray-500 text-sm">
           <Users size={16} />
           <span>{job.applicants} applicants</span>
         </div>
