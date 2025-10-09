@@ -2,184 +2,180 @@ import React, { useState } from "react";
 import { Briefcase, Grid, Building2 } from "lucide-react";
 import SearchBar from "../../../components/common/searchbar/Searchbar";
 import JobListings from "./jobListening/JobListening";
+import CategoryGrid from "../category/Category";
 
 // Mock data - will be replaced with Firebase data later
 const mockJobs = [
   {
-    id: "1",
-    title: "Finance manager",
-    company: "Virtusa",
-    location: "Colombo",
-    type: "Full-time",
-    date: "7/18/2025",
-    description: "This is the finance based accounting base job",
+    id: '1',
+    title: 'Finance manager',
+    company: 'Virtusa',
+    location: 'Colombo',
+    type: 'Full-time',
+    date: '7/18/2025',
+    description: 'This is the finance based accounting base job',
     applicants: 0,
     requirements: [],
-    responsibilities: [],
+    responsibilities: []
   },
   {
-    id: "2",
-    title: "Frontend Developer",
-    company: "Virtusa",
-    location: "Colombo",
-    type: "Internship",
-    date: "6/30/2025",
+    id: '2',
+    title: 'Frontend Developer',
+    company: 'Virtusa',
+    location: 'Colombo',
+    type: 'Internship',
+    date: '6/30/2025',
     description:
-      "Join our dynamic team to work on cutting-edge web applications using React and TypeScript.",
+      'Join our dynamic team to work on cutting-edge web applications using React and TypeScript.',
     applicants: 15,
     requirements: [
-      "Proficiency in React and JavaScript",
-      "Experience with TypeScript",
-      "Knowledge of CSS and responsive design",
-      "Understanding of version control (Git)",
+      'Proficiency in React and JavaScript',
+      'Experience with TypeScript',
+      'Knowledge of CSS and responsive design',
+      'Understanding of version control (Git)'
     ],
     responsibilities: [
-      "Develop user-facing features using React",
-      "Collaborate with design team to implement UI/UX",
-      "Write clean, maintainable code",
-      "Participate in code reviews",
-    ],
+      'Develop user-facing features using React',
+      'Collaborate with design team to implement UI/UX',
+      'Write clean, maintainable code',
+      'Participate in code reviews'
+    ]
   },
   {
-    id: "3",
-    title: "Backend Developer",
-    company: "TechCorp",
-    location: "Remote",
-    type: "Full-time",
-    date: "7/15/2025",
+    id: '3',
+    title: 'Backend Developer',
+    company: 'TechCorp',
+    location: 'Remote',
+    type: 'Full-time',
+    date: '7/15/2025',
     description:
-      "Looking for an experienced backend developer to build scalable APIs.",
+      'Looking for an experienced backend developer to build scalable APIs.',
     applicants: 23,
     requirements: [
-      "Strong knowledge of Node.js",
-      "Experience with databases (SQL/NoSQL)",
-      "RESTful API design",
-      "Cloud platform experience (AWS/GCP)",
+      'Strong knowledge of Node.js',
+      'Experience with databases (SQL/NoSQL)',
+      'RESTful API design',
+      'Cloud platform experience (AWS/GCP)'
     ],
     responsibilities: [
-      "Design and develop backend services",
-      "Optimize database queries",
-      "Implement security best practices",
-      "Work with frontend team for integration",
-    ],
+      'Design and develop backend services',
+      'Optimize database queries',
+      'Implement security best practices',
+      'Work with frontend team for integration'
+    ]
   },
   {
-    id: "4",
-    title: "UI/UX Designer",
-    company: "Creative Studio",
-    location: "Colombo",
-    type: "Part-time",
-    date: "7/20/2025",
+    id: '4',
+    title: 'UI/UX Designer',
+    company: 'Creative Studio',
+    location: 'Colombo',
+    type: 'Part-time',
+    date: '7/20/2025',
     description:
-      "Creative designer needed for exciting projects with modern design approaches.",
+      'Creative designer needed for exciting projects with modern design approaches.',
     applicants: 8,
     requirements: [
-      "Proficiency in Figma/Adobe XD",
-      "Strong portfolio",
-      "Understanding of design principles",
-      "Experience with user research",
+      'Proficiency in Figma/Adobe XD',
+      'Strong portfolio',
+      'Understanding of design principles',
+      'Experience with user research'
     ],
     responsibilities: [
-      "Create wireframes and prototypes",
-      "Conduct user research",
-      "Design intuitive interfaces",
-      "Collaborate with development team",
-    ],
+      'Create wireframes and prototypes',
+      'Conduct user research',
+      'Design intuitive interfaces',
+      'Collaborate with development team'
+    ]
   },
   {
-    id: "5",
-    title: "Data Analyst",
-    company: "DataWorks",
-    location: "Remote",
-    type: "Full-time",
-    date: "7/22/2025",
+    id: '5',
+    title: 'Data Analyst',
+    company: 'DataWorks',
+    location: 'Remote',
+    type: 'Full-time',
+    date: '7/22/2025',
     description:
-      "Analyze complex datasets and provide actionable insights for business decisions.",
+      'Analyze complex datasets and provide actionable insights for business decisions.',
     applicants: 12,
     requirements: [
-      "Strong SQL skills",
-      "Experience with Python/R",
-      "Data visualization tools (Tableau/Power BI)",
-      "Statistical analysis knowledge",
+      'Strong SQL skills',
+      'Experience with Python/R',
+      'Data visualization tools (Tableau/Power BI)',
+      'Statistical analysis knowledge'
     ],
     responsibilities: [
-      "Analyze business data",
-      "Create reports and dashboards",
-      "Identify trends and patterns",
-      "Present findings to stakeholders",
-    ],
+      'Analyze business data',
+      'Create reports and dashboards',
+      'Identify trends and patterns',
+      'Present findings to stakeholders'
+    ]
   },
   {
-    id: "6",
-    title: "Marketing Intern",
-    company: "Growth Agency",
-    location: "Colombo",
-    type: "Internship",
-    date: "7/25/2025",
+    id: '6',
+    title: 'Marketing Intern',
+    company: 'Growth Agency',
+    location: 'Colombo',
+    type: 'Internship',
+    date: '7/25/2025',
     description:
-      "Great opportunity to learn digital marketing in a fast-paced environment.",
+      'Great opportunity to learn digital marketing in a fast-paced environment.',
     applicants: 31,
     requirements: [
-      "Interest in digital marketing",
-      "Basic knowledge of social media",
-      "Good communication skills",
-      "Creative thinking",
+      'Interest in digital marketing',
+      'Basic knowledge of social media',
+      'Good communication skills',
+      'Creative thinking'
     ],
     responsibilities: [
-      "Assist in social media campaigns",
-      "Create content for marketing",
-      "Research market trends",
-      "Support the marketing team",
-    ],
+      'Assist in social media campaigns',
+      'Create content for marketing',
+      'Research market trends',
+      'Support the marketing team'
+    ]
   },
   {
-    id: "7",
-    title: "DevOps Engineer",
-    company: "CloudTech",
-    location: "Remote",
-    type: "Full-time",
-    date: "7/28/2025",
+    id: '7',
+    title: 'DevOps Engineer',
+    company: 'CloudTech',
+    location: 'Remote',
+    type: 'Full-time',
+    date: '7/28/2025',
     description:
-      "Manage cloud infrastructure and deployment pipelines for enterprise applications.",
+      'Manage cloud infrastructure and deployment pipelines for enterprise applications.',
     applicants: 7,
     requirements: [
-      "Experience with Docker/Kubernetes",
-      "CI/CD pipeline knowledge",
-      "Cloud platforms (AWS/Azure)",
-      "Linux system administration",
+      'Experience with Docker/Kubernetes',
+      'CI/CD pipeline knowledge',
+      'Cloud platforms (AWS/Azure)',
+      'Linux system administration'
     ],
     responsibilities: [
-      "Manage cloud infrastructure",
-      "Automate deployment processes",
-      "Monitor system performance",
-      "Ensure security and compliance",
-    ],
-  },
+      'Manage cloud infrastructure',
+      'Automate deployment processes',
+      'Monitor system performance',
+      'Ensure security and compliance'
+    ]
+  }
 ];
 
 const JobPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<
-    "jobs" | "categories" | "companies"
-  >("jobs");
+  const [activeTab, setActiveTab] = useState<'jobs' | 'categories' | 'companies'>('jobs');
   const [filteredJobs, setFilteredJobs] = useState(mockJobs);
   const [filters, setFilters] = useState({
-    search: "",
+    search: '',
     type: [] as string[],
-    location: [] as string[],
+    location: [] as string[]
   });
 
   const handleSearch = (searchTerm: string) => {
-    setFilters((prev) => ({ ...prev, search: searchTerm }));
+    setFilters(prev => ({ ...prev, search: searchTerm }));
     applyFilters({ ...filters, search: searchTerm });
   };
 
-  const handleFilterChange = (
-    filterType: "type" | "location",
-    value: string
-  ) => {
+  const handleFilterChange = (filterType: 'type' | 'location', value: string) => {
     const currentFilters = filters[filterType];
     const newFilters = currentFilters.includes(value)
-      ? currentFilters.filter((item) => item !== value)
+      ? currentFilters.filter(item => item !== value)
       : [...currentFilters, value];
 
     const updatedFilters = { ...filters, [filterType]: newFilters };
@@ -190,41 +186,28 @@ const JobPage: React.FC = () => {
   const applyFilters = (currentFilters: typeof filters) => {
     let filtered = mockJobs;
 
-    // Search filter
     if (currentFilters.search) {
       filtered = filtered.filter(
-        (job) =>
-          job.title
-            .toLowerCase()
-            .includes(currentFilters.search.toLowerCase()) ||
-          job.company
-            .toLowerCase()
-            .includes(currentFilters.search.toLowerCase()) ||
-          job.description
-            .toLowerCase()
-            .includes(currentFilters.search.toLowerCase())
+        job =>
+          job.title.toLowerCase().includes(currentFilters.search.toLowerCase()) ||
+          job.company.toLowerCase().includes(currentFilters.search.toLowerCase()) ||
+          job.description.toLowerCase().includes(currentFilters.search.toLowerCase())
       );
     }
 
-    // Type filter
     if (currentFilters.type.length > 0) {
-      filtered = filtered.filter((job) =>
-        currentFilters.type.includes(job.type)
-      );
+      filtered = filtered.filter(job => currentFilters.type.includes(job.type));
     }
 
-    // Location filter
     if (currentFilters.location.length > 0) {
-      filtered = filtered.filter((job) =>
-        currentFilters.location.includes(job.location)
-      );
+      filtered = filtered.filter(job => currentFilters.location.includes(job.location));
     }
 
     setFilteredJobs(filtered);
   };
 
   const clearAllFilters = () => {
-    setFilters({ search: "", type: [], location: [] });
+    setFilters({ search: '', type: [], location: [] });
     setFilteredJobs(mockJobs);
   };
 
@@ -281,38 +264,37 @@ const JobPage: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="bg-gray-100 pb-12">
-        <div className="max-w-7xl mx-auto px-4">
-          {/* Tabs */}
-          <div className="flex gap-4 mb-8 bg-white rounded-lg p-2 shadow-sm">
+      <div className="bg-gray-100 pb-12 -pt-6 -mt-1">
+        <div className="max-w-7xl mx-auto px-4 ">
+          <div className="flex gap-4 mb-8 bg-white rounded-lg p-2 shadow-sm justify-center">
             <button
-              onClick={() => setActiveTab("jobs")}
+              onClick={() => setActiveTab('jobs')}
               className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${
-                activeTab === "jobs"
-                  ? "bg-purple-600 text-white shadow-md"
-                  : "text-gray-600 hover:bg-gray-100"
+                activeTab === 'jobs'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <Briefcase size={20} />
               Job Listings
             </button>
             <button
-              onClick={() => setActiveTab("categories")}
+              onClick={() => setActiveTab('categories')}
               className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${
-                activeTab === "categories"
-                  ? "bg-purple-600 text-white shadow-md"
-                  : "text-gray-600 hover:bg-gray-100"
+                activeTab === 'categories'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <Grid size={20} />
               Categories
             </button>
             <button
-              onClick={() => setActiveTab("companies")}
+              onClick={() => setActiveTab('companies')}
               className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all ${
-                activeTab === "companies"
-                  ? "bg-purple-600 text-white shadow-md"
-                  : "text-gray-600 hover:bg-gray-100"
+                activeTab === 'companies'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <Building2 size={20} />
@@ -320,10 +302,8 @@ const JobPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Content Area */}
-          {activeTab === "jobs" && (
+          {activeTab === 'jobs' && (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Left Sidebar - Search & Filters */}
               <div className="lg:col-span-1">
                 <SearchBar
                   onSearch={handleSearch}
@@ -333,23 +313,15 @@ const JobPage: React.FC = () => {
                 />
               </div>
 
-              {/* Right Content - Job Listings */}
               <div className="lg:col-span-3">
                 <JobListings jobs={filteredJobs} />
               </div>
             </div>
           )}
 
-          {activeTab === "categories" && (
-            <div className="bg-white rounded-lg p-8 shadow-sm text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                Categories Coming Soon
-              </h2>
-              <p className="text-gray-600">Browse jobs by category</p>
-            </div>
-          )}
+          {activeTab === "categories" && <CategoryGrid />}
 
-          {activeTab === "companies" && (
+          {activeTab === 'companies' && (
             <div className="bg-white rounded-lg p-8 shadow-sm text-center">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
                 Companies Coming Soon
@@ -364,3 +336,4 @@ const JobPage: React.FC = () => {
 };
 
 export default JobPage;
+
