@@ -27,7 +27,7 @@ const categories = [
 const CategoryGrid: React.FC = () => {
   return (
     <div className="bg-gray-100 py-12">
-      <div className="max-w-7xl mx-auto px-4 text-center">
+      <div className="max-w-7xl mx-auto px-4 text-center ">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Browse by Categories</h2>
         <p className="text-gray-600 mb-10">
           Explore job opportunities across different industries and specializations
