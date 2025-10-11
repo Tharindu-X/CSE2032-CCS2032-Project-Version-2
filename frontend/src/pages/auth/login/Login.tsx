@@ -2,31 +2,56 @@
 import React, { useState } from "react";
 import { BsBriefcaseFill } from "react-icons/bs";
 import { FaUser, FaArrowLeft, FaSignInAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password, rememberMe });
-    // 🔑 Authentication logic goes here
+
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store JWT and role
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        alert(data.message || "Login successful");
+        // Redirect based on role
+        if (data.role === "student") navigate("./dashboard"), console.log("navigating to student dashboard");
+        else if (data.role === "company") navigate("/companydashboard");
+        else if (data.role === "admin") navigate("/admindashboard");
+      } else {
+        alert(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error, please try again.");
+    }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-purple-500 to-indigo-500">
-      <div className="w-full max-w-md rounded-4xl bg-white p-11 shadow-5xl">
-        
+      <div className="w-full max-w-md rounded-xl bg-white p-11 shadow-5xl">
         {/* Top Bar */}
         <div className="flex items-center justify-between mb-6">
           <FaArrowLeft className="text-gray-500 text-lg cursor-pointer" />
           <div className="flex items-center flex-1 justify-center -ml-6">
-  <BsBriefcaseFill className="text-purple-700 text-2xl mr-2" />
-  <h1 className="text-lg font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">
-    GragGig
-  </h1>
-</div>
+            <BsBriefcaseFill className="text-purple-700 text-2xl mr-2" />
+            <h1 className="text-lg font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">
+              GragGig
+            </h1>
+          </div>
         </div>
 
         {/* Title */}
@@ -36,13 +61,15 @@ const LoginForm: React.FC = () => {
         </div>
 
         {/* Top Login Button */}
-        <button className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2 text-white font-medium shadow-md mb-6">
+        <button
+          className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2 text-white font-medium shadow-md mb-6"
+          onClick={handleSubmit} // optional: if you want button click to trigger login
+        >
           <FaUser className="mr-2" /> Login
         </button>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
           <input
             type="email"
             value={email}
@@ -51,8 +78,6 @@ const LoginForm: React.FC = () => {
             placeholder="Email Address"
             className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:ring focus:ring-purple-200"
           />
-
-          {/* Password */}
           <input
             type="password"
             value={password}
@@ -90,7 +115,7 @@ const LoginForm: React.FC = () => {
         {/* Sign up link */}
         <p className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <a href="#" className="text-purple-600 hover:underline">
+          <a href="/signup" className="text-purple-600 hover:underline">
             Create one here
           </a>
         </p>
@@ -99,5 +124,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm  ;
-
+export default LoginForm;
