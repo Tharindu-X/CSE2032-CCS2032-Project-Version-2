@@ -21,5 +21,8 @@ export const StudentRepository = {
     const [result] = await pool.execute(sql, values);
     return result.insertId;
   },
-  
+  async findByEmail(email) {
+    const [rows] = await pool.execute('SELECT * FROM student WHERE email = ?', [email]);
+    return rows[0] || null;
+  }
 };

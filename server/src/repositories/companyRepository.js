@@ -19,5 +19,9 @@ export const CompanyRepository = {
     ];
     const [result] = await pool.execute(sql, values);
     return result.insertId;
+  },
+  async findByEmail(email) {
+    const [rows] = await pool.execute('SELECT * FROM company WHERE email = ?', [email]);
+    return rows[0] || null;
   }
 };
