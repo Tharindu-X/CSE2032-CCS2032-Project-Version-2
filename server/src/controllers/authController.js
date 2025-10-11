@@ -1,6 +1,11 @@
 import { StudentRepository } from '../repositories/studentRepository.js';
 import { CompanyRepository } from '../repositories/companyRepository.js';
+import { AdminRepository } from '../repositories/adminRepository.js';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
 
 export const registerUser = async (req, res) => {
   try {
@@ -65,6 +70,33 @@ export const registerUser = async (req, res) => {
     }
 
     res.status(400).json({ message: 'Invalid account type' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// LOGIN
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const generateToken = (userId, role) => jwt.sign({ id: userId, role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+
+    const student = await StudentRepository.findByEmail(email);
+    if (student && await bcrypt.compare(password, student.password)) {
+      return res.json({ role: 'student', user: student, token: generateToken(student.id, 'student') });
+    }
+
+    const company = await CompanyRepository.findByEmail(email);
+    if (company && await bcrypt.compare(password, company.password)) {
+      return res.json({ role: 'company', user: company, token: generateToken(company.id, 'company') });
+    }
+
+    const admin = await AdminRepository.findByEmail(email);
+    if (admin && await bcrypt.compare(password, admin.password)) {
+      return res.json({ role: 'admin', user: admin, token: generateToken(admin.id, 'admin') });
+    }
+    res.status(401).json({ message: 'Invalid email or password' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
