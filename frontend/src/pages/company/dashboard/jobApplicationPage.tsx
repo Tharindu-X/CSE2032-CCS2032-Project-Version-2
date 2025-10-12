@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback } from "./components/ui/avatar"
 import { Button } from "./components/ui/button"
 import { Card } from "./components/ui/card"
 import { Mail, GraduationCap, Phone, Calendar } from "lucide-react"
+import axios from "axios"
 
 interface Student {
   id: number
@@ -30,56 +31,6 @@ interface JobDetails {
   company: string
 }
 
-const mockGetJobApplications = (jobId: string): Promise<{ job: JobDetails; applications: Application[] }> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        job: {
-          id: Number(jobId),
-          title: "Frontend Developer",
-          company: "Virtusa",
-        },
-        applications: [
-          {
-            application_id: 1,
-            student_id: 1,
-            job_id: Number(jobId),
-            status: "pending",
-            applied_date: "2024-01-15",
-            student: {
-              id: 1,
-              f_name: "Tharindu",
-              l_name: "Dananjaya",
-              year: 4,
-              email: "tharindu@gmail.com",
-              dgree: "Bsc Hons",
-              dep_name: "Computer Science",
-              reg_no: "CS/2020/001",
-            },
-          },
-          {
-            application_id: 2,
-            student_id: 2,
-            job_id: Number(jobId),
-            status: "pending",
-            applied_date: "2024-01-17",
-            student: {
-              id: 2,
-              f_name: "Nimal",
-              l_name: "Perera",
-              year: 3,
-              email: "nimal@gmail.com",
-              dgree: "Bsc Hons",
-              dep_name: "Information Technology",
-              reg_no: "IT/2020/005",
-            },
-          },
-        ],
-      })
-    }, 500)
-  })
-}
-
 function getInitials(firstName: string, lastName: string) {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
 }
@@ -87,15 +38,73 @@ function getInitials(firstName: string, lastName: string) {
 export default function JobApplicationsPage({ jobId }: { jobId: string }) {
   const [job, setJob] = useState<JobDetails | null>(null)
   const [applications, setApplications] = useState<Application[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    mockGetJobApplications(jobId).then((data) => {
-      setJob(data.job)
-      setApplications(data.applications)
-    })
+    if (!jobId) return
+
+    const fetchApplications = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        const companyName = localStorage.getItem("company_name") || "Unknown Company"
+
+        // Fetch applications
+        const res = await axios.get(`http://localhost:5000/api/company/jobs/${jobId}/applications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+
+        // Map backend response to your Application type
+        const mappedApplications: Application[] = res.data.map((app: any) => ({
+          application_id: app.application_id,
+          student_id: app.student_id,
+          job_id: app.job_id,
+          status: app.status,
+          applied_date: app.applied_date,
+          student: {
+            id: app.student_id,
+            f_name: app.f_name,
+            l_name: app.l_name,
+            year: app.year,
+            email: app.email,
+            dgree: app.dgree,
+            dep_name: app.dep_name,
+            reg_no: app.reg_no,
+          },
+        }))
+
+        setApplications(mappedApplications)
+
+        // Get job title safely
+        const jobTitle = mappedApplications[0]?.job_title || localStorage.getItem(`job_title_${jobId}`) || "Unknown Job"
+
+        setJob({
+          id: Number(jobId),
+          title: jobTitle,
+          company: companyName,
+        })
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          // Job has no applications, still set job info
+          const companyName = localStorage.getItem("company_name") || "Unknown Company"
+          const jobTitle = localStorage.getItem(`job_title_${jobId}`) || "Unknown Job"
+          setJob({ id: Number(jobId), title: jobTitle, company: companyName })
+          setApplications([])
+        } else {
+          console.error("Error fetching applications:", err)
+          setError(err.response?.data?.message || "Failed to fetch applications")
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchApplications()
   }, [jobId])
 
-  if (!job) return <div className="p-8">Loading...</div>
+  if (loading) return <div className="p-8">Loading...</div>
+  if (error) return <div className="p-8 text-red-500">{error}</div>
+  if (!job) return <div className="p-8">Invalid Job</div>
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -120,26 +129,10 @@ export default function JobApplicationsPage({ jobId }: { jobId: string }) {
               href="/dashboard"
               className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-              <span className="font-medium">Dashboard</span>
+              Dashboard
             </a>
             <div className="flex items-center gap-3 px-3 py-2 bg-purple-600 text-white rounded-lg mt-1">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <span className="font-medium">Applications</span>
+              Applications
             </div>
           </div>
         </nav>
@@ -153,9 +146,6 @@ export default function JobApplicationsPage({ jobId }: { jobId: string }) {
             href="/dashboard"
             className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
             Back to Dashboard
           </a>
 
@@ -178,14 +168,12 @@ export default function JobApplicationsPage({ jobId }: { jobId: string }) {
                 <Card key={application.application_id} className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4 flex-1">
-                      {/* Avatar */}
                       <Avatar className="w-14 h-14 bg-purple-600 text-white">
                         <AvatarFallback className="bg-purple-600 text-white text-lg font-semibold">
                           {getInitials(application.student.f_name, application.student.l_name)}
                         </AvatarFallback>
                       </Avatar>
 
-                      {/* Student Info */}
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
                           {application.student.f_name} {application.student.l_name}
@@ -233,7 +221,6 @@ export default function JobApplicationsPage({ jobId }: { jobId: string }) {
                       </div>
                     </div>
 
-                    {/* Contact Button */}
                     <Button
                       variant="outline"
                       className="flex items-center gap-2 bg-transparent"

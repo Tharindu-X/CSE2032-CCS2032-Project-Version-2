@@ -11,13 +11,33 @@ export default function Dashboard() {
   const [data, setData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setData(mockData)
-      setIsLoading(false)
-    }, 1000)
-    return () => clearTimeout(timer)
-  }, [])
+useEffect(() => {
+  const fetchDashboard = async () => {
+    setIsLoading(true);
+
+    try {
+      const token = localStorage.getItem("token"); // token saved after login
+      const res = await fetch("http://localhost:5000/api/company/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch dashboard");
+
+      const data = await res.json();
+      setData(data);
+    } catch (err) {
+      console.error("Error fetching dashboard:", err);
+      // Optional: show error to user
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchDashboard();
+}, []);
 
   const company = data?.company || {
     name: "Loading...",

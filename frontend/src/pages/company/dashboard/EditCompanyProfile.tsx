@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { ArrowLeft, Save, Upload } from "lucide-react"
 
 interface CompanyDetails {
@@ -6,69 +6,72 @@ interface CompanyDetails {
   com_name: string
   reg_no: string
   email: string
-  password: string
-  business_type: string
+  password?: string
+  bussiness_type: string
   url: string
-  bio: string
+  bio?: string
   contact_no: string
   address: string
   no_of_employees: number
-  image: string
+  image?: string
 }
 
-const placeholderCompanies: CompanyDetails[] = [
-  {
-    id: 1,
-    com_name: "Virtua",
-    reg_no: "12345",
-    email: "virtusa@gmail.com",
-    password: "",
-    business_type: "Technology",
-    url: "https://www.virtusa.com",
-    bio: "Virtuzo is a US-based global digital engineering and digital transformation company founded in 1996. Headquartered in Southborough, Massachusetts, it delivers digital transformation. A cloud, data analytics, and application services across industries like banking, healthcare, and telecom. It operates in 35+ countries with ~35,000 employees.",
-    contact_no: "0769046448",
-    address: "Colombo",
-    no_of_employees: 201,
-    image: "",
-  },
-  {
-    id: 2,
-    com_name: "Technova",
-    reg_no: "54321",
-    email: "info@technova.com",
-    password: "",
-    business_type: "Finance",
-    url: "https://www.technova.com",
-    bio: "Technova is a financial tech company specializing in digital banking solutions and fintech applications for modern businesses worldwide.",
-    contact_no: "0771234567",
-    address: "Galle",
-    no_of_employees: 120,
-    image: "",
-  },
-]
-
 export default function EditCompanyPage() {
-  // Use first company as initial data
-  const [companyData, setCompanyData] = useState<CompanyDetails>(placeholderCompanies[0])
-  const [logoPreview, setLogoPreview] = useState<string>(companyData.image)
+  const [companyData, setCompanyData] = useState<CompanyDetails | null>(null)
+  const [logoPreview, setLogoPreview] = useState<string>("")
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Load company details from login info stored in localStorage
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user")
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser)
+      setCompanyData(parsedUser)
+      if (parsedUser.image) setLogoPreview(parsedUser.image)
+    }
+  }, [])
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target
-    setCompanyData((prev) => ({ ...prev, [name]: value }))
+    if (!companyData) return
+    setCompanyData({ ...companyData, [name]: value })
   }
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => setLogoPreview(reader.result as string)
-      reader.readAsDataURL(file)
-      setCompanyData((prev) => ({ ...prev, image: file.name }))
+    if (!file || !companyData) return
+    const reader = new FileReader()
+    reader.onloadend = () => setLogoPreview(reader.result as string)
+    reader.readAsDataURL(file)
+    setCompanyData({ ...companyData, image: file.name })
+  }
+
+  const handleUpdateCompany = async () => {
+    if (!companyData) return
+    try {
+      const token = localStorage.getItem("token")
+      const res = await fetch("http://localhost:5000/api/company/update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(companyData),
+      })
+      if (!res.ok) throw new Error("Failed to update company")
+      const data = await res.json()
+      console.log("Company updated:", data)
+      alert("Company updated successfully!")
+      // Optionally update localStorage so your dashboard shows updated info
+      localStorage.setItem("user", JSON.stringify(companyData))
+    } catch (err) {
+      console.error(err)
+      alert("Error updating company")
     }
   }
 
-  const handleSaveDraft = () => console.log("Saving as draft...", companyData)
-  const handleUpdateCompany = () => console.log("Updating company...", companyData)
+  if (!companyData) return <div>Loading...</div>
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,19 +85,14 @@ export default function EditCompanyPage() {
 
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">V</span>
+              <span className="text-white font-bold text-sm">
+                {companyData.com_name[0] || "C"}
+              </span>
             </div>
             <span className="font-semibold text-gray-900">{companyData.com_name}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleSaveDraft}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <Save className="w-4 h-4" />
-              Save as Draft
-            </button>
             <button
               onClick={handleUpdateCompany}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-sm"
@@ -108,20 +106,13 @@ export default function EditCompanyPage() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-6 py-8">
-        {/* Title */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Company Details</h1>
           <p className="text-gray-600">Update your company information below</p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full" />
-        </div>
-
         {/* Form */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-6">
-          {/* Row 1 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
@@ -145,13 +136,12 @@ export default function EditCompanyPage() {
             </div>
           </div>
 
-          {/* Row 2 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
               <select
-                name="business_type"
-                value={companyData.business_type}
+                name="bussiness_type"
+                value={companyData.bussiness_type}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all appearance-none bg-white"
               >
@@ -175,7 +165,6 @@ export default function EditCompanyPage() {
             </div>
           </div>
 
-          {/* Row 3 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Company Email</label>
@@ -199,35 +188,39 @@ export default function EditCompanyPage() {
             </div>
           </div>
 
-          {/* Row 4 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
-              <input
-                type="url"
-                name="url"
-                value={companyData.url}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-              <input
-                type="text"
-                name="address"
-                value={companyData.address}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
+            <input
+              type="url"
+              name="url"
+              value={companyData.url}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+            <input
+              type="text"
+              name="address"
+              value={companyData.address}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+            />
           </div>
 
           {/* Logo Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-500 transition-colors">
-              <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" id="logo-input" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                className="hidden"
+                id="logo-input"
+              />
               <label htmlFor="logo-input" className="flex flex-col items-center gap-3 cursor-pointer">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                   <Upload className="w-6 h-6 text-purple-500" />
@@ -246,7 +239,7 @@ export default function EditCompanyPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Company Bio</label>
             <textarea
               name="bio"
-              value={companyData.bio}
+              value={companyData.bio || ""}
               onChange={handleInputChange}
               rows={6}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all resize-none"

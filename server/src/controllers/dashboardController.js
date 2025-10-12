@@ -1,11 +1,64 @@
 import db from '../config/db.js';
 
+// Add a new job
+export const addJob = async (req, res) => {
+  try {
+    const companyId = req.user.id; // from JWT
+
+    const {
+      job_title,
+      job_type,
+      job_location,
+      job_description,
+      job_category,
+      requirements,
+      responsibilities,
+      job_tags,
+      closing_date
+    } = req.body;
+
+    // Validate required fields
+    if (!job_title || !job_type || !job_location || !job_description || !job_category || !closing_date) {
+      return res.status(400).json({ message: 'Please fill in all required fields.' });
+    }
+
+    const sql = `
+      INSERT INTO job 
+      (com_id, job_title, job_type, job_location, job_description, job_category, requirements, responsibilities, job_tags, closing_date)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      companyId,
+      job_title,
+      job_type,
+      job_location,
+      job_description,
+      job_category,
+      requirements || '',
+      responsibilities || '',
+      job_tags || '',
+      closing_date
+    ];
+
+    const [result] = await db.query(sql, values);
+
+    return res.status(201).json({ 
+      message: 'Job added successfully', 
+      jobId: result.insertId 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get company dashboard info
 export const getCompanyDashboard = async (req, res) => {
   try {
-    // 1️⃣ Get company ID from JWT
     const companyId = req.user.id;
 
-    // 2️⃣ Fetch company info
+    // Fetch company info
     const [companyRows] = await db.query(
       `SELECT 
          id, com_name, bussiness_type, url, bio, contact_no, address, no_of_employees, image
@@ -28,7 +81,7 @@ export const getCompanyDashboard = async (req, res) => {
       image: company.image
     };
 
-    // 3️⃣ Fetch all jobs with application counts
+    // Fetch jobs with application counts
     const [jobs] = await db.query(
       `SELECT 
          j.job_id,
@@ -52,7 +105,7 @@ export const getCompanyDashboard = async (req, res) => {
       [companyId]
     );
 
-    // 4️⃣ Compute analytics
+    // Compute analytics
     const analytics = {
       activeJobs: jobs.length,
       totalApplications: jobs.reduce((sum, j) => sum + parseInt(j.total_applications || 0), 0),
@@ -66,7 +119,6 @@ export const getCompanyDashboard = async (req, res) => {
       }
     };
 
-    // 5️⃣ Return JSON response
     res.json({
       company: companyData,
       jobs,
@@ -76,5 +128,40 @@ export const getCompanyDashboard = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get a single job and all its applications
+export const getJobApplications = async (req, res) => {
+  const { jobId } = req.params;
+
+  try {
+    const [applications] = await db.query(
+      `
+      SELECT 
+        a.application_id, 
+        a.student_id, 
+        a.job_id, 
+        a.status, 
+        a.application_date AS applied_date,
+        s.f_name, 
+        s.l_name, 
+        s.year, 
+        s.email, 
+        s.dgree, 
+        s.dep_name, 
+        s.reg_no
+      FROM application a
+      JOIN student s ON a.student_id = s.id
+      WHERE a.job_id = ?
+      `,
+      [jobId]
+    );
+
+    // Return empty array if no applications
+    res.json(applications); // this will be [] if no rows
+  } catch (error) {
+    console.error('Error fetching job applications:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

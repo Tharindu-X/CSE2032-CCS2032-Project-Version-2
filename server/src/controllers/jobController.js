@@ -27,6 +27,7 @@ export const addJob = async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
+    // Convert arrays to JSON strings if they exist
     const values = [
       companyId,
       job_title,
@@ -34,9 +35,9 @@ export const addJob = async (req, res) => {
       job_location,
       job_description,
       job_category,
-      requirements || '',
-      responsibilities || '',
-      job_tags || '',
+      requirements ? JSON.stringify(requirements) : '',
+      responsibilities ? JSON.stringify(responsibilities) : '',
+      job_tags ? JSON.stringify(job_tags) : '',
       closing_date
     ];
 
