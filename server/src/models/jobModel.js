@@ -13,6 +13,7 @@ export class Job {
     job_tags,
     closing_date,
     created_at,
+    company_name,
   }) {
     this.job_id = job_id;
     this.com_id = com_id;
@@ -27,5 +28,6 @@ export class Job {
     this.job_tags = job_tags || "";
     this.closing_date = closing_date;
     this.created_at = created_at;
+    this.company_name = company_name || "";
   }
 }

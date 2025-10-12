@@ -5,7 +5,14 @@ export const jobRepository = {
   // Get all jobs
   getAllJobs: async () => {
   try {
-    const [rows] = await db.query("SELECT * FROM job ORDER BY created_at DESC");
+    const [rows] = await db.query(`
+      SELECT 
+        j.*,
+        c.com_name as company_name
+      FROM job j
+      LEFT JOIN company c ON j.com_id = c.id
+      ORDER BY j.created_at DESC
+    `);
     return rows.map((row) => new Job(row));
   } catch (error) {
     throw error;
