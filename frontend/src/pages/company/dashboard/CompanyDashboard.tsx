@@ -72,15 +72,17 @@ useEffect(() => {
                 <Download className="w-4 h-4" />
                 Export Data
               </Button>
-             <Link to="/addjob">
+             <Link to="/company/post-job">
                <Button className="gap-2 bg-purple-600 text-white hover:bg-purple-700">
                 <Plus className="w-4 h-4" />
                 Post New Job
               </Button>
          </Link>
-              <Button variant="ghost" className="p-2">
-                <User className="w-4 h-4" />
-              </Button>
+              <Link to="/company/dashboard/editCompanyProfile">
+                <Button variant="ghost" className="p-2">
+                  <User className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </header>
