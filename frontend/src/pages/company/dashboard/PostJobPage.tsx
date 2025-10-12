@@ -1,5 +1,6 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, type ChangeEvent } from "react";
 import { ArrowLeft, MapPin, Tag, Plus, Send } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface CompanyData {
   name: string;
@@ -7,6 +8,7 @@ interface CompanyData {
 }
 
 const PostJobPage: React.FC = () => {
+  const navigate = useNavigate();
   const [companyData, setCompanyData] = useState<CompanyData>({ name: "", logo: "" });
   const [formData, setFormData] = useState({
     jobTitle: "",
@@ -101,7 +103,10 @@ const PostJobPage: React.FC = () => {
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <button 
+              onClick={() => navigate('/company/dashboard')}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm font-medium">Back to Dashboard</span>
             </button>
