@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin, Calendar, Users, Eye } from 'lucide-react';
 import { type Job } from "./../../../types/job";
+import CompanyCard from '../companyCard/CompanyCard';
 
 interface JobCardProps {
   job: Job;
@@ -54,7 +55,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails }) => {
               </span>
             </div>
             
-            {/* <p className=" font-montserrat text-gray-700 font-medium mb-2">{job.company}</p> */}
+            <p className=" font-montserrat text-gray-700 font-medium mb-2">{CompanyCard.name}</p>
             
             <div className="flex items-center gap-4 text-sm font-montserrat text-gray-500">
               <div className="flex items-center gap-1">

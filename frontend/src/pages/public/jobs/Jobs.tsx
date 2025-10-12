@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Briefcase, Grid, Building2 } from "lucide-react";
 import SearchBar from "../../../components/common/searchbar/Searchbar";
-import JobListings, { type Job as FrontendJob } from "./jobListening/JobListening";
+import JobListings from "./jobListening/JobListening";
 import CategoryGrid from "../category/Category";
 import CompanyCardGrid from "../companies/Companies";
-import { sampleCompanies } from "../../../types/job";
+import type { CompanyCardProps } from "../../../components/cards/companyCard/CompanyCard";
 
 // Database job interface (matches MySQL)
 interface DBJob {
@@ -23,10 +23,29 @@ interface DBJob {
   created_at: string;
 }
 
+// Database company interface (matches MySQL)
+interface DBCompany {
+  id: number;
+  com_name: string;
+  reg_no: string;
+  email: string;
+  bussiness_type: string;
+  url: string;
+  bio: string;
+  contact_no: string;
+  address: string;
+  no_of_employees: number;
+  image: string;
+  status: string;
+  isDeleted: number;
+}
+
 const JobPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"jobs" | "categories" | "companies">("jobs");
   const [jobs, setJobs] = useState<DBJob[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<DBJob[]>([]);
+  const [companies, setCompanies] = useState<CompanyCardProps[]>([]);
+  const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     search: "",
     type: [] as string[],
@@ -56,7 +75,43 @@ useEffect(() => {
     }
   };
 
+  const fetchCompanies = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/api/companies/approved");
+      const data = await res.json();
+
+      console.log("Fetched companies:", data);
+
+      if (Array.isArray(data)) {
+        // Transform database companies to CompanyCard format
+        const transformedCompanies: CompanyCardProps[] = data.map((company: DBCompany) => ({
+          id: company.id.toString(),
+          name: company.com_name,
+          logo: company.com_name.substring(0, 2).toUpperCase(),
+          industry: company.bussiness_type,
+          description: company.bio || 'No description available',
+          location: company.address,
+          employeeCount: company.no_of_employees,
+          openPositions: 0, // This would need to be fetched separately from jobs table
+          websiteUrl: company.url,
+          jobListings: [] // This would need to be fetched separately from jobs table
+        }));
+        setCompanies(transformedCompanies);
+      } else {
+        console.error("API did not return an array:", data);
+        setCompanies([]);
+      }
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      setCompanies([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   fetchJobs();
+  fetchCompanies();
 }, []);
 
 
@@ -212,7 +267,15 @@ useEffect(() => {
 
           {/* Other Tabs */}
           {activeTab === "categories" && <CategoryGrid />}
-          {activeTab === "companies" && <CompanyCardGrid companies={sampleCompanies} />}
+          {activeTab === "companies" && (
+            loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="text-gray-600">Loading companies...</div>
+              </div>
+            ) : (
+              <CompanyCardGrid companies={companies} />
+            )
+          )}
         </div>
       </div>
     </div>

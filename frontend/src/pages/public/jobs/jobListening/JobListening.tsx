@@ -28,7 +28,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs }) => {
   const mappedJobs: Job[] = jobs.map((job, index) => ({
     id: job.job_id?.toString() || `job-${index}`, // Ensure unique ID
     title: job.job_title || "No Title",
-    company: job.com_id ? `Company ${job.com_id}` : "Unknown Company",
+    company: job.company_name || `Company ${job.com_id}` || "Unknown Company",
     location: job.job_location || "Unknown Location",
     type: job.job_type || "Unknown Type",
     date: job.created_at || job.closing_date || new Date().toISOString(),
