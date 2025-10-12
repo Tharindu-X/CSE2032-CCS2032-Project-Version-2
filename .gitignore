@@ -1,0 +1,64 @@
+# ----------------------------------------
+# General
+# ----------------------------------------
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node modules (both frontend & backend)
+node_modules
+**/node_modules
+
+# Build directories
+dist
+dist-ssr
+build
+**/build
+*.local
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ----------------------------------------
+# Frontend (React / Vite)
+# ----------------------------------------
+frontend/node_modules
+frontend/dist
+frontend/.vite
+frontend/.next
+frontend/out
+
+# ----------------------------------------
+# Backend (Express / Node)
+# ----------------------------------------
+server/node_modules
+server/dist
+server/build
+
+# ----------------------------------------
+# Misc
+# ----------------------------------------
+coverage
+*.tgz
+npm-debug.log*
+yarn-debug.log*
+.pnp.*
+.pnp.js
