@@ -1,5 +1,7 @@
 import express from "express";
 import { jobRepository } from "../repositories/jobRepository.js";
+import { authenticateToken } from '../middlewears/authMiddlewear.js';
+import { addJob } from '../controllers/jobController.js';
 
 const router = express.Router();
 
@@ -24,7 +26,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST new job
+// POST new job (using repository)
 router.post("/", async (req, res) => {
   try {
     const jobId = await jobRepository.createJob(req.body);
@@ -33,5 +35,8 @@ router.post("/", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+// POST /api/jobs/add - Add a job for the logged-in company (using controller)
+router.post('/add', authenticateToken, addJob);
 
 export default router;

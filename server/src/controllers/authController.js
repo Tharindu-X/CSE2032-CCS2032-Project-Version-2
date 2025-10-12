@@ -50,7 +50,7 @@ export const registerUser = async (req, res) => {
         bussiness_type,
         contact_no,
         address,
-        no_of_employees
+        no_of_employees,url
       } = req.body;
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -62,7 +62,8 @@ export const registerUser = async (req, res) => {
         bussiness_type,
         contact_no,
         address,
-        no_of_employees
+        no_of_employees,
+          url 
       };
 
       const id = await CompanyRepository.create(companyData);
