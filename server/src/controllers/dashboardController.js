@@ -1,133 +1,52 @@
 import db from '../config/db.js';
-
-// Add a new job
-export const addJob = async (req, res) => {
-  try {
-    const companyId = req.user.id; // from JWT
-
-    const {
-      job_title,
-      job_type,
-      job_location,
-      job_description,
-      job_category,
-      requirements,
-      responsibilities,
-      job_tags,
-      closing_date
-    } = req.body;
-
-    // Validate required fields
-    if (!job_title || !job_type || !job_location || !job_description || !job_category || !closing_date) {
-      return res.status(400).json({ message: 'Please fill in all required fields.' });
-    }
-
-    const sql = `
-      INSERT INTO job 
-      (com_id, job_title, job_type, job_location, job_description, job_category, requirements, responsibilities, job_tags, closing_date)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    const values = [
-      companyId,
-      job_title,
-      job_type,
-      job_location,
-      job_description,
-      job_category,
-      requirements || '',
-      responsibilities || '',
-      job_tags || '',
-      closing_date
-    ];
-
-    const [result] = await db.query(sql, values);
-
-    return res.status(201).json({ 
-      message: 'Job added successfully', 
-      jobId: result.insertId 
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+import { jobStore } from '../stores/jobStore.js';
 
 // Get company dashboard info
 export const getCompanyDashboard = async (req, res) => {
   try {
-    const companyId = req.user.id;
+    const companyId = req.user?.id || '1'; // Use mock company ID if no user
 
-    // Fetch company info
-    const [companyRows] = await db.query(
-      `SELECT 
-         id, com_name, bussiness_type, url, bio, contact_no, address, no_of_employees, image
-       FROM company 
-       WHERE id = ?`,
-      [companyId]
-    );
-    const company = companyRows[0];
-    if (!company) return res.status(404).json({ message: 'Company not found' });
+    console.log('Fetching dashboard for company:', companyId);
 
+    // Mock company data
     const companyData = {
-      id: company.id,
-      name: company.com_name,
-      type: company.bussiness_type,
-      logo: company.url || '/generic-company-logo.png',
-      bio: company.bio,
-      contact_no: company.contact_no,
-      address: company.address,
-      no_of_employees: company.no_of_employees,
-      image: company.image
+      id: companyId,
+      name: 'Test Company',
+      type: 'Technology',
+      logo: '/generic-company-logo.png',
+      bio: 'A leading technology company specializing in innovative solutions.',
+      contact_no: '+1-555-0123',
+      address: '123 Tech Street, Silicon Valley, CA',
+      no_of_employees: 150,
+      image: '/company-image.jpg'
     };
 
-    // Fetch jobs with application counts
-    const [jobs] = await db.query(
-      `SELECT 
-         j.job_id,
-         j.com_id,
-         j.job_title,
-         j.job_type,
-         j.job_location,
-         j.job_description,
-         j.job_category,
-         j.requirements,
-         j.responsibilities,
-         j.no_of_applicants,
-         j.job_tags,
-         j.closing_date,
-         j.created_at,
-         COUNT(a.application_id) AS total_applications
-       FROM job j
-       LEFT JOIN application a ON j.job_id = a.job_id
-       WHERE j.com_id = ?
-       GROUP BY j.job_id`,
-      [companyId]
-    );
+    // Get jobs posted by this company from job store
+    const companyJobs = Array.from(jobStore.values()).filter(job => job.com_id === companyId);
 
-    // Compute analytics
+    // Mock analytics based on actual posted jobs
     const analytics = {
-      activeJobs: jobs.length,
-      totalApplications: jobs.reduce((sum, j) => sum + parseInt(j.total_applications || 0), 0),
-      profileViews: 0,          // placeholder if you want to track views later
-      avgResponseTime: "—",     // placeholder
+      activeJobs: companyJobs.length,
+      totalApplications: companyJobs.reduce((sum, j) => sum + parseInt(j.no_of_applicants || 0), 0),
+      profileViews: 1250,
+      avgResponseTime: "2 days",
       changes: {
-        activeJobs: "+0%",
-        totalApplications: "+0%",
-        profileViews: "+0%",
-        avgResponseTime: "+0%"
+        activeJobs: companyJobs.length > 0 ? "+12%" : "+0%",
+        totalApplications: companyJobs.length > 0 ? "+8%" : "+0%",
+        profileViews: "+15%",
+        avgResponseTime: "-1 day"
       }
     };
 
     res.json({
       company: companyData,
-      jobs,
+      jobs: companyJobs, // Only show jobs posted by this company
       analytics
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Dashboard error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 

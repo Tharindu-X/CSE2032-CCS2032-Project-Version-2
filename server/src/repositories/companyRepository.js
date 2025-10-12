@@ -4,8 +4,8 @@ export const CompanyRepository = {
   async create(companyData) {
     const sql = `
       INSERT INTO company 
-      (com_name, reg_no, email, password, bussiness_type, contact_no, address, no_of_employees, url, bio, image, status, isDeleted)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (com_name, reg_no, email, password, bussiness_type, contact_no, address, no_of_employees)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       companyData.com_name,
@@ -15,12 +15,7 @@ export const CompanyRepository = {
       companyData.bussiness_type,
       companyData.contact_no,
       companyData.address,
-      companyData.no_of_employees,
-      companyData.url,
-      companyData.bio || '',
-      companyData.image || '',
-      companyData.status === 'active' ? 1 : 0,
-      companyData.isDeleted ?? 0
+      companyData.no_of_employees
     ];
 
     const [result] = await pool.execute(sql, values);
