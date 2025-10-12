@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { User, Building2, GraduationCap, ArrowLeft } from 'lucide-react';
 import { BsBriefcaseFill } from 'react-icons/bs';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 type AccountType = 'student' | 'company';
 
 export default function SignupPage() {
+  const navigate = useNavigate();
+  const { register } = useAuth();
   const [accountType, setAccountType] = useState<AccountType>('student');
+  const [isLoading, setIsLoading] = useState(false);
 
   // 🔹 Common Fields
   const [email, setEmail] = useState('');
@@ -31,9 +36,11 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (password !== confirmPassword) {
       alert('Passwords do not match!');
+      setIsLoading(false);
       return;
     }
 
@@ -63,28 +70,32 @@ export default function SignupPage() {
         };
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
+      const success = await register(payload);
+      
+      if (success) {
         alert(`${accountType === 'student' ? 'Student' : 'Company'} registered successfully!`);
-        console.log('Response:', data);
-
-    // ✅ Redirect to login page after 1 second
-      // setTimeout(() => {
-      //   navigate('/login'); // make sure '/login' route exists in App.tsx
-      // }, 1000);
         
+        // Get user role from localStorage to determine redirect
+        const role = localStorage.getItem('role');
+        
+        // Redirect based on role
+        if (role === "student") {
+          navigate("/student/dashboard");
+        } else if (role === "company") {
+          navigate("/company/dashboard");
+        } else if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
       } else {
-        alert(data.message || 'Registration failed');
+        alert('Registration failed. Please try again.');
       }
     } catch (err) {
       console.error(err);
       alert('Error connecting to server');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -209,9 +220,13 @@ export default function SignupPage() {
               <input type="url" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2" />
             </div>
 
-            <button type="submit" className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2.5 text-white font-semibold">
+            <button 
+              type="submit" 
+              className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2.5 text-white font-semibold disabled:opacity-50"
+              disabled={isLoading}
+            >
               <User size={20} className="mr-2" />
-              Create Account
+              {isLoading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
         )}
@@ -282,18 +297,22 @@ export default function SignupPage() {
               <textarea rows={3} value={address} onChange={(e) => setAddress(e.target.value)} required className="w-full rounded-lg border border-gray-300 px-3 py-2 resize-none" />
             </div>
 
-            <button type="submit" className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2.5 text-white font-semibold">
+            <button 
+              type="submit" 
+              className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2.5 text-white font-semibold disabled:opacity-50"
+              disabled={isLoading}
+            >
               <User size={20} className="mr-2" />
-              Create Account
+              {isLoading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
         )}
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?{' '}
-          <a href="#" className="text-purple-600 hover:underline">
+          <Link to="/login" className="text-purple-600 hover:underline">
             Sign in here
-          </a>
+          </Link>
         </p>
       </div>
     </div>

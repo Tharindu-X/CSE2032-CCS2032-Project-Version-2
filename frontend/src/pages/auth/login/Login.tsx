@@ -2,41 +2,46 @@
 import React, { useState } from "react";
 import { BsBriefcaseFill } from "react-icons/bs";
 import { FaUser, FaArrowLeft, FaSignInAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Store JWT and role
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);
-        alert(data.message || "Login successful");
+      const success = await login(email, password);
+      
+      if (success) {
+        // Get user role from localStorage to determine redirect
+        const role = localStorage.getItem('role');
+        
         // Redirect based on role
-        if (data.role === "student") navigate("./dashboard"), console.log("navigating to student dashboard");
-        else if (data.role === "company") navigate("/companydashboard");
-        else if (data.role === "admin") navigate("/admindashboard");
+        if (role === "student") {
+          navigate("/student/dashboard");
+        } else if (role === "company") {
+          navigate("/company/dashboard");
+        } else if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
       } else {
-        alert(data.message || "Login failed");
+        alert("Login failed. Please check your credentials.");
       }
     } catch (err) {
       console.error(err);
       alert("Server error, please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,9 +68,10 @@ const LoginForm: React.FC = () => {
         {/* Top Login Button */}
         <button
           className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2 text-white font-medium shadow-md mb-6"
-          onClick={handleSubmit} // optional: if you want button click to trigger login
+          onClick={handleSubmit}
+          disabled={isLoading}
         >
-          <FaUser className="mr-2" /> Login
+          <FaUser className="mr-2" /> {isLoading ? "Signing In..." : "Login"}
         </button>
 
         {/* Form */}
@@ -106,18 +112,19 @@ const LoginForm: React.FC = () => {
           {/* Sign In button */}
           <button
             type="submit"
-            className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2.5 text-white font-semibold shadow-md hover:opacity-90 transition"
+            className="w-full flex items-center justify-center rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 py-2.5 text-white font-semibold shadow-md hover:opacity-90 transition disabled:opacity-50"
+            disabled={isLoading}
           >
-            <FaSignInAlt className="mr-2" /> Sign In
+            <FaSignInAlt className="mr-2" /> {isLoading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
         {/* Sign up link */}
         <p className="mt-6 text-center text-sm text-gray-600">
-          Don’t have an account?{" "}
-          <a href="/signup" className="text-purple-600 hover:underline">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-purple-600 hover:underline">
             Create one here
-          </a>
+          </Link>
         </p>
       </div>
     </div>
