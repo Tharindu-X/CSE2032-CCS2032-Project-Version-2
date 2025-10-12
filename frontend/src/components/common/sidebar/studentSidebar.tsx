@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import LogoutPopup from "./LogoutPopup";
-import ProfilePopup from "./ProfilePopup";
+import LogoutPopup from "../popups/LogoutPopup";
+import ProfilePopup from "../popups/ProfilePopup";
 
 type SidebarProps = {
   activeKey?: "dashboard" | "applications" | "browse" | "companies" | "settings";
