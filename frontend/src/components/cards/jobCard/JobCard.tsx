@@ -54,7 +54,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails }) => {
               </span>
             </div>
             
-            <p className=" font-montserrat text-gray-700 font-medium mb-2">{job.company}</p>
+            {/* <p className=" font-montserrat text-gray-700 font-medium mb-2">{job.company}</p> */}
             
             <div className="flex items-center gap-4 text-sm font-montserrat text-gray-500">
               <div className="flex items-center gap-1">
@@ -63,7 +63,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails }) => {
               </div>
               <div className="flex items-center gap-1">
                 <Calendar size={16} />
-                <span>{job.date}</span>
+                <span>{new Date(job.date).toISOString().split("T")[0]}</span>
               </div>
             </div>
           </div>
