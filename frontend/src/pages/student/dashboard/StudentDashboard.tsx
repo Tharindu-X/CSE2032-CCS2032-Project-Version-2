@@ -1,8 +1,9 @@
-import { useState, useRef} from "react";
+import { useState, useRef, useEffect } from "react";
 import Sidebar from "../../../components/common/sidebar/studentSidebar";
 import Navbar from "../../../components/common/navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import { useDarkMode } from "../darkmodecontext/DarkModeContext";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function StudentDashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -16,6 +17,12 @@ export default function StudentDashboard() {
   const [avatarUrl, setAvatarUrl] = useState("https://avatars.githubusercontent.com/u/9919?s=64");
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
+  const { user, token } = useAuth();
+
+  const [applicationsSubmitted, setApplicationsSubmitted] = useState<number | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  const [companiesFollowed, setCompaniesFollowed] = useState<number | null>(null);
+  const [companiesError, setCompaniesError] = useState<string | null>(null);
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -31,6 +38,56 @@ export default function StudentDashboard() {
   const handleProfilePopupChange = (isOpen: boolean) => {
     setIsProfilePopupOpen(isOpen);
   };
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        if (!user?.email || !token) return;
+        const response = await fetch(`http://localhost:5000/api/student/${encodeURIComponent(user.email)}/stats`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json?.message || "Failed to fetch stats");
+        }
+        const total = json?.data?.total_applications ?? null;
+        setApplicationsSubmitted(typeof total === "number" ? total : null);
+        setStatsError(null);
+      } catch (err: any) {
+        setStatsError(err?.message || "Failed to fetch stats");
+      }
+    };
+    fetchStats();
+  }, [user?.email, token]);
+
+  useEffect(() => {
+    const fetchCompaniesFollowed = async () => {
+      try {
+        if (!user?.email || !token) return;
+        const response = await fetch(`http://localhost:5000/api/student/${encodeURIComponent(user.email)}/companies-followed`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json?.message || "Failed to fetch companies followed");
+        }
+        const count = json?.data?.count ?? null;
+        setCompaniesFollowed(typeof count === "number" ? count : null);
+        setCompaniesError(null);
+      } catch (err: any) {
+        setCompaniesError(err?.message || "Failed to fetch companies followed");
+      }
+    };
+    fetchCompaniesFollowed();
+  }, [user?.email, token]);
 
   return (
     <div className="flex min-h-screen font-display" style={{ backgroundColor: isDarkMode ? '#111827' : '#f8fafc' }}>
@@ -114,7 +171,16 @@ export default function StudentDashboard() {
                 <div className={`w-16 h-16 grid place-items-center rounded-2xl text-2xl transition-transform hover:scale-110 ${c.color}`}>
                   {c.icon}
                 </div>
-                <span className="font-semibold" style={{ color: isDarkMode ? '#d1d5db' : '#475569' }}>{c.title}</span>
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold" style={{ color: isDarkMode ? '#f9fafb' : '#0f172a' }}>
+                    {i === 0
+                      ? (applicationsSubmitted !== null ? applicationsSubmitted : (statsError ? '—' : '...'))
+                      : i === 2
+                        ? (companiesFollowed !== null ? companiesFollowed : (companiesError ? '—' : '...'))
+                        : '—'}
+                  </span>
+                  <span className="font-semibold" style={{ color: isDarkMode ? '#d1d5db' : '#475569' }}>{c.title}</span>
+                </div>
               </li>
             ))}
           </ul>
