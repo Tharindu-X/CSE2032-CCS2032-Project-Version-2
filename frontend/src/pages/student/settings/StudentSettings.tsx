@@ -88,22 +88,17 @@ export default function Settings() {
 
               <div>
                 <label
-                  htmlFor="personal-phone"
+                  htmlFor="year"
                   className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1"
                 >
-                  Personal phone number
+                  Year
                 </label>
-                <div className="flex">
-                  <select className="px-3 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-l-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-gray-300">
-                    <option>+94</option>
-                  </select>
-                  <input
-                    id="personal-phone"
-                    type="text"
-                    placeholder="7x xxx xx xx"
-                    className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border-t border-r border-b border-border-light dark:border-border-dark rounded-r-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-blacks-300"
-                  />
-                </div>
+                <input
+                  id="year"
+                  type="text"
+                  placeholder="1 / 2 / 3 / 4"
+                  className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
+                />
               </div>
 
               <div>
@@ -121,25 +116,6 @@ export default function Settings() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="work-phone"
-                  className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1"
-                >
-                  Work phone number
-                </label>
-                <div className="flex">
-                  <select className="px-3 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-l-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300">
-                    <option>+94</option>
-                  </select>
-                  <input
-                    id="work-phone"
-                    type="text"
-                    placeholder="xx xxx xx xx"
-                    className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border-t border-r border-b border-border-light dark:border-border-dark rounded-r-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
-                  />
-                </div>
-              </div>
 
               <div>
                 <label
@@ -158,15 +134,30 @@ export default function Settings() {
 
               <div>
                 <label
-                  htmlFor="country-city"
+                  htmlFor="reg-no"
                   className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1"
                 >
-                  Country, City
+                  Registration No
                 </label>
                 <input
-                  id="country-city"
+                  id="reg-no"
                   type="text"
-                  placeholder="Sri Lanka - Colombo"
+                  placeholder="Fc-xxxxxx"
+                  className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="degree"
+                  className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1"
+                >
+                  Degree
+                </label>
+                <input
+                  id="degree"
+                  type="text"
+                  placeholder="B.Compt (Hons) in Software Engineering"
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -188,15 +179,15 @@ export default function Settings() {
 
               <div>
                 <label
-                  htmlFor="organization"
+                  htmlFor="dep-name"
                   className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1"
                 >
-                  Organization
+                  Department Name
                 </label>
                 <input
-                  id="organization"
+                  id="name"
                   type="text"
-                  placeholder="University of Sri Jayewardenapura"
+                  placeholder="Department of Software Engineering"
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
