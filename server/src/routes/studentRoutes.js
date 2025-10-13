@@ -18,6 +18,7 @@ const router = express.Router();
 // Search routes
 router.get("/search/results", getSreachResults);
 
+
 // Student dashboard routes
 router.get("/:email/stats", getStudentStats);
 router.get("/:email/companies-followed", getCountFollowedCompanies);
