@@ -1,3 +1,6 @@
+import React from 'react';
+import { createPortal } from 'react-dom';
+
 interface LogoutPopupProps {
   isOpen: boolean;
   onClose: () => void;
@@ -8,9 +11,10 @@ interface LogoutPopupProps {
 export default function LogoutPopup({ isOpen, onClose, onConfirm, userName }: LogoutPopupProps) {
   if (!isOpen) return null;
 
-  return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  return createPortal(
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+      style={{ backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', zIndex: 1000 }}
       onClick={onClose}
     >
       <div 
@@ -66,6 +70,7 @@ export default function LogoutPopup({ isOpen, onClose, onConfirm, userName }: Lo
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

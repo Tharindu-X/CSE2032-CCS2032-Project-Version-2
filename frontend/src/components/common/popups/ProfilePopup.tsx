@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ProfilePopupProps {
   isVisible: boolean;
@@ -56,7 +57,7 @@ const ProfilePopup: React.FC<ProfilePopupProps> = ({
 
   if (!isVisible) return null;
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -67,6 +68,8 @@ const ProfilePopup: React.FC<ProfilePopupProps> = ({
           right: 0,
           bottom: 0,
           backgroundColor: "rgba(0, 0, 0, 0.5)",
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
           zIndex: 1000,
         }}
         onClick={onClose}
@@ -324,8 +327,10 @@ const ProfilePopup: React.FC<ProfilePopupProps> = ({
           }
         `}
       </style>
-    </>
+    </>,
+    document.body
   );
 };
 
 export default ProfilePopup;
+
