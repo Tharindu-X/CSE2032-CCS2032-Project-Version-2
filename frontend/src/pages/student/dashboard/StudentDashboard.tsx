@@ -23,6 +23,8 @@ export default function StudentDashboard() {
   const [statsError, setStatsError] = useState<string | null>(null);
   const [companiesFollowed, setCompaniesFollowed] = useState<number | null>(null);
   const [companiesError, setCompaniesError] = useState<string | null>(null);
+  const [recentApplications, setRecentApplications] = useState<Array<{ application_id: number; application_date: string; status: string; job_title: string; company_name: string; }>|null>(null);
+  const [recentAppsError, setRecentAppsError] = useState<string | null>(null);
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -87,6 +89,32 @@ export default function StudentDashboard() {
       }
     };
     fetchCompaniesFollowed();
+  }, [user?.email, token]);
+
+  useEffect(() => {
+    const fetchRecentApplications = async () => {
+      try {
+        if (!user?.email || !token) return;
+        const response = await fetch(`http://localhost:5000/api/student/${encodeURIComponent(user.email)}/applications/recent?limit=5`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json?.message || "Failed to fetch recent applications");
+        }
+        const apps = Array.isArray(json?.data) ? json.data : [];
+        setRecentApplications(apps);
+        setRecentAppsError(null);
+      } catch (err: any) {
+        setRecentAppsError(err?.message || "Failed to fetch recent applications");
+        setRecentApplications([]);
+      }
+    };
+    fetchRecentApplications();
   }, [user?.email, token]);
 
   return (
@@ -217,9 +245,27 @@ export default function StudentDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td colSpan={3} className="py-3.5 px-1.5 text-red-500">Failed to load applications.</td>
-                  </tr>
+                  {recentAppsError ? (
+                    <tr>
+                      <td colSpan={3} className="py-3.5 px-1.5 text-red-500">{recentAppsError}</td>
+                    </tr>
+                  ) : recentApplications === null ? (
+                    <tr>
+                      <td colSpan={3} className="py-3.5 px-1.5" style={{ color: isDarkMode ? '#d1d5db' : '#475569' }}>Loading recent applications...</td>
+                    </tr>
+                  ) : recentApplications.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="py-3.5 px-1.5" style={{ color: isDarkMode ? '#d1d5db' : '#475569' }}>No recent applications.</td>
+                    </tr>
+                  ) : (
+                    recentApplications.map(app => (
+                      <tr key={app.application_id}>
+                        <td className="py-2.5 px-1.5" style={{ color: isDarkMode ? '#f9fafb' : '#0f172a' }}>{app.company_name}</td>
+                        <td className="py-2.5 px-1.5" style={{ color: isDarkMode ? '#f9fafb' : '#0f172a' }}>{app.job_title}</td>
+                        <td className="py-2.5 px-1.5" style={{ color: isDarkMode ? '#f9fafb' : '#0f172a' }}>{new Date(app.application_date).toLocaleDateString()}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
