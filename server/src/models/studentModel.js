@@ -30,6 +30,6 @@ class Student {
     this.CV = CV;
   };
 
-  }
+}
 
-export default User;
+export default Student;
