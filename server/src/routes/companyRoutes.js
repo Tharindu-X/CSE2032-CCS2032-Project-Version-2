@@ -1,7 +1,7 @@
 import express from 'express';
 import { getAllCompanies, getCompanyById, getApprovedCompanies, getActiveCompanies, updateCompany } from '../controllers/companyController.js';
 import { getCompanyDashboard, getJobApplications } from '../controllers/dashboardController.js';
-import { authenticateToken } from '../middlewears/authMiddlewear.js';
+import { authenticateToken } from '../middlewears/authMiddleware.js';
 
 const router = express.Router();
 
