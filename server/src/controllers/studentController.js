@@ -1,19 +1,25 @@
-import S from "../models/user.js";
-import userRepository from "../repositories/userRepository.js";
+import Student from "../models/studentModel.js";
+import StudentRepository from "../repositories/studentRepository.js";
 import HttpStatus from "../enums/httpStatus.js";
 
-const user = new User(null, null, null, null, null, null);
+const student = new Student(null, null, null, null, null, null, null, null, null, null, null);
 
-const getUser = async (req, res) => {
-  const id = req.params.id;
-  user.id = id;
+const getStudent = async (req, res) => {
+  const email = req.params.email;
+  student.email = email;
+  
+  // Validate email if wanted...
+  /*
   const validateErrMsg = user.validateId();
   if (validateErrMsg)
     return res.status(HttpStatus.BAD_REQUEST).send(validateErrMsg);
-  try {
-    const result = await userRepository.getUserById(id);
+ 
+*/
+
+try {
+    const result = await StudentRepository.findByEmail(email);
     if (!result) {
-      return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "Student not found" });
     } 
     return res.status(HttpStatus.OK).json({ data: result });
     
@@ -23,5 +29,5 @@ const getUser = async (req, res) => {
 };
 
 export default {
-  getUser,
+  getStudent,
 };
