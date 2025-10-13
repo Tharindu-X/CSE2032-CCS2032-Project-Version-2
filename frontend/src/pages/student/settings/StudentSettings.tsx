@@ -63,7 +63,6 @@ export default function Settings() {
           <div className="md:col-span-8">
             <div className="flex items-center mb-8">
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold mr-3">
-                1
               </div>
               <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300">
                 PROFILE
