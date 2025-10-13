@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDarkMode } from './DarkModeContext';
+import { useDarkMode } from '../../../pages/student/darkmodecontext/DarkModeContext'
 
 interface AdminCardProps {
   imageUrl: string;
