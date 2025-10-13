@@ -10,7 +10,7 @@ const getStudent = async (req, res) => {
   
   // Validate email if wanted...
   /*
-  const validateErrMsg = user.validateId();
+  const validateErrMsg = student.validateEmail(email);
   if (validateErrMsg)
     return res.status(HttpStatus.BAD_REQUEST).send(validateErrMsg);
  
