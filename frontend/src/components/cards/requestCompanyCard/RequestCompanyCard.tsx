@@ -1,7 +1,7 @@
 import React from 'react';
-import { useDarkMode } from  '../../../pages/student/darkmodecontext/DarkModeContext';
+import { useDarkMode } from './DarkModeContext';
 
-interface RequestCompanyCardProps {
+interface AdminCardProps {
   imageUrl: string;
   companyName: string;
   jobTitle: string;
@@ -11,7 +11,7 @@ interface RequestCompanyCardProps {
   onReject: () => void;
 }
 
-const RequestCompanyCard: React.FC<RequestCompanyCardProps> = ({
+const AdminCard: React.FC<AdminCardProps> = ({
   imageUrl,
   companyName,
   jobTitle,
@@ -87,4 +87,4 @@ const RequestCompanyCard: React.FC<RequestCompanyCardProps> = ({
   );
 };
 
-export default RequestCompanyCard;
+export default AdminCard;
