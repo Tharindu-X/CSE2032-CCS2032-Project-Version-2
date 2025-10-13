@@ -28,6 +28,15 @@ try {
   }
 };
 
-export default {
+
+const getStudentStats = async (req, res) => {
+
+}
+
+const getCountFollowedCompanies = async (req, res) => {
+  
+}
+
+export {
   getStudent,
 };
