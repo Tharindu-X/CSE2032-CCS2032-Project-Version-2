@@ -135,7 +135,7 @@ export default function StudentDashboard() {
               if (key === "dashboard") navigate("/");
               if (key === "settings") navigate("/settings");
             }}
-            onLogout={() => navigate("/login")}
+            onLogout={() => navigate("/home")}
             onLogoutPopupChange={setIsLogoutPopupOpen}
             isDarkMode={isDarkMode}
             userName={userName}

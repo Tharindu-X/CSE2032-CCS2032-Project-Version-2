@@ -7,6 +7,50 @@ import bcrypt from 'bcrypt';
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
+function isValidExpiresIn(value) {
+  if (!value || typeof value !== 'string') return false;
+  const trimmed = value.trim();
+  if (trimmed === '') return false;
+  if (/^\d+$/.test(trimmed)) return true; // seconds
+  if (/^\d+\s*[smhd]$/i.test(trimmed)) return true; // 10m, 2h, 7d, 30s
+  return false;
+}
+
+function signToken(userId, role) {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET not set');
+  }
+  const payload = { id: userId, role };
+  if (isValidExpiresIn(JWT_EXPIRES_IN)) {
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN.trim().replace(/\s+/g, '') });
+  }
+  return jwt.sign(payload, JWT_SECRET);
+}
+
+function normalizeEmail(email) {
+  return typeof email === 'string' ? email.trim().toLowerCase() : email;
+}
+
+async function verifyPassword(storedPassword, inputPassword) {
+  if (!storedPassword) return false;
+  const isBcrypt = typeof storedPassword === 'string' && storedPassword.startsWith('$2');
+  if (isBcrypt) {
+    return bcrypt.compare(inputPassword, storedPassword);
+  }
+  // Fallback for legacy plaintext passwords in DB
+  return storedPassword === inputPassword;
+}
+
+function coerceNumber(input) {
+  if (input === null || input === undefined) return null;
+  if (typeof input === 'number' && Number.isFinite(input)) return input;
+  const str = String(input).trim();
+  if (str === '') return null;
+  if (/^\d+$/.test(str)) return Number(str);
+  const match = str.match(/\d+/);
+  return match ? Number(match[0]) : null;
+}
+
 export const registerUser = async (req, res) => {
   try {
     const { accountType } = req.body;
@@ -15,7 +59,7 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Account type is required' });
     }
 
-    const generateToken = (userId, role) => jwt.sign({ id: userId, role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    const generateToken = (userId, role) => signToken(userId, role);
 
     if (accountType === 'student') {
       const {
@@ -34,8 +78,8 @@ export const registerUser = async (req, res) => {
       const studentData = {
         f_name,
         l_name,
-        year,
-        email,
+        year: coerceNumber(year),
+        email: normalizeEmail(email),
         password: hashedPassword,
         dgree,
         dep_name,
@@ -70,12 +114,12 @@ export const registerUser = async (req, res) => {
       const companyData = {
         com_name,
         reg_no,
-        email,
+        email: normalizeEmail(email),
         password: hashedPassword,
         bussiness_type,
         contact_no,
         address,
-        no_of_employees
+        no_of_employees: coerceNumber(no_of_employees)
       };
 
       const id = await CompanyRepository.create(companyData);
@@ -92,7 +136,8 @@ export const registerUser = async (req, res) => {
     res.status(400).json({ message: 'Invalid account type' });
   } catch (err) {
     console.error('Registration error:', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    const message = err && err.code ? `${err.code}: ${err.message}` : err.message;
+    res.status(500).json({ message: 'Server error', error: message });
   }
 };
 
@@ -105,12 +150,13 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const generateToken = (userId, role) => jwt.sign({ id: userId, role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    const generateToken = (userId, role) => signToken(userId, role);
 
-    console.log('Attempting login for email:', email);
+    const normalizedEmail = normalizeEmail(email);
+    console.log('Attempting login for email:', normalizedEmail);
 
-    const student = await StudentRepository.findByEmail(email);
-    if (student && await bcrypt.compare(password, student.password)) {
+    const student = await StudentRepository.findByEmail(normalizedEmail);
+    if (student && await verifyPassword(student.password, password)) {
       console.log('Student login successful:', student.email);
       return res.json({ 
         role: 'student', 
@@ -121,8 +167,8 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const company = await CompanyRepository.findByEmail(email);
-    if (company && await bcrypt.compare(password, company.password)) {
+    const company = await CompanyRepository.findByEmail(normalizedEmail);
+    if (company && await verifyPassword(company.password, password)) {
       console.log('Company login successful:', company.email);
       return res.json({ 
         role: 'company', 
@@ -133,8 +179,8 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const admin = await AdminRepository.findByEmail(email);
-    if (admin && await bcrypt.compare(password, admin.password)) {
+    const admin = await AdminRepository.findByEmail(normalizedEmail);
+    if (admin && await verifyPassword(admin.password, password)) {
       console.log('Admin login successful:', admin.email);
       return res.json({ 
         role: 'admin', 
@@ -145,7 +191,7 @@ export const loginUser = async (req, res) => {
       });
     }
     
-    console.log('Login failed - invalid credentials for:', email);
+    console.log('Login failed - invalid credentials for:', normalizedEmail);
     res.status(401).json({ message: 'Invalid email or password' });
   } catch (err) {
     console.error('Login error:', err);
