@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../../../components/common/sidebar/studentSidebar";
 import Navbar from "../../../components/common/navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import { useDarkMode } from "../darkmodecontext/DarkModeContext";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Settings() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -12,6 +13,51 @@ export default function Settings() {
   const [avatarUrl, setAvatarUrl] = useState("https://avatars.githubusercontent.com/u/9919?s=64");
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
+  const { user, token } = useAuth();
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [year, setYear] = useState("");
+  const [linkedInUrl, setLinkedInUrl] = useState("");
+  const [regNo, setRegNo] = useState("");
+  const [degree, setDegree] = useState("");
+  const [email, setEmail] = useState("");
+  const [departmentName, setDepartmentName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        if (!user?.email || !token) return;
+        const response = await fetch(`http://localhost:5000/api/student/${encodeURIComponent(user.email)}/settings`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json?.message || "Failed to load settings");
+        }
+        const data = json?.data || {};
+        setFirstName(data.f_name || "");
+        setLastName(data.l_name || "");
+        setYear(data.year ? String(data.year) : "");
+        setLinkedInUrl(data.linkedin_url || "");
+        setRegNo(data.reg_no || "");
+        setDegree(data.dgree || "");
+        setEmail(data.email || user.email);
+        setDepartmentName(data.dep_name || "");
+      } catch (err: any) {
+        // Non-fatal for page usage; show inline error on save only
+        console.error(err);
+      }
+    };
+    fetchSettings();
+  }, [user?.email, token]);
 
   const handleProfileUpdate = (username: string, avatarUrl: string) => {
     setUserName(username);
@@ -20,6 +66,47 @@ export default function Settings() {
 
   const handleProfilePopupChange = (isOpen: boolean) => {
     setIsProfilePopupOpen(isOpen);
+  };
+
+  const handleSave = async (e?: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    e?.preventDefault();
+    try {
+      if (!user?.email || !token) return;
+      setIsSaving(true);
+      setSaveError(null);
+      setSaveSuccess(null);
+
+      const payload = {
+        f_name: firstName,
+        l_name: lastName,
+        year: year ? Number(year) : null,
+        email: email || user.email,
+        dgree: degree,
+        dep_name: departmentName,
+        reg_no: regNo,
+        linkedin_url: linkedInUrl,
+      };
+
+      const response = await fetch(`http://localhost:5000/api/student/${encodeURIComponent(user.email)}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(json?.message || "Failed to save settings");
+      }
+
+      setSaveSuccess("Settings saved successfully.");
+    } catch (err: any) {
+      setSaveError(err?.message || "Failed to save settings");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -81,6 +168,8 @@ export default function Settings() {
                   id="first-name"
                   type="text"
                   placeholder="Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -96,6 +185,8 @@ export default function Settings() {
                   id="year"
                   type="text"
                   placeholder="1 / 2 / 3 / 4"
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -111,6 +202,8 @@ export default function Settings() {
                   id="last-name"
                   type="text"
                   placeholder="Surname"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -127,6 +220,8 @@ export default function Settings() {
                   id="linkedIn"
                   type="text"
                   placeholder="linkedIn.com/in/yourprofile"
+                  value={linkedInUrl}
+                  onChange={(e) => setLinkedInUrl(e.target.value)}
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -142,6 +237,8 @@ export default function Settings() {
                   id="reg-no"
                   type="text"
                   placeholder="Fc-xxxxxx"
+                  value={regNo}
+                  onChange={(e) => setRegNo(e.target.value)}
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -157,6 +254,8 @@ export default function Settings() {
                   id="degree"
                   type="text"
                   placeholder="B.Compt (Hons) in Software Engineering"
+                  value={degree}
+                  onChange={(e) => setDegree(e.target.value)}
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -172,6 +271,8 @@ export default function Settings() {
                   id="email"
                   type="email"
                   placeholder="fcxxxxxx@foc.sjp.ac.lk"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -187,6 +288,8 @@ export default function Settings() {
                   id="name"
                   type="text"
                   placeholder="Department of Software Engineering"
+                  value={departmentName}
+                  onChange={(e) => setDepartmentName(e.target.value)}
                   className="w-full px-4 py-3 bg-field-light dark:bg-field-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-primary focus:border-primary text-gray-700 dark:text-black-300"
                 />
               </div>
@@ -251,15 +354,21 @@ export default function Settings() {
               </div>
 
               <div className="pt-16">
-                <button className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
-                  Correct. Save info
+                <button onClick={handleSave} disabled={isSaving} className="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
+                  {isSaving ? 'Saving...' : 'Correct. Save info'}
                 </button>
+                {saveError && (
+                  <p className="mt-2 text-red-500 text-sm">{saveError}</p>
+                )}
+                {saveSuccess && (
+                  <p className="mt-2 text-green-600 text-sm">{saveSuccess}</p>
+                )}
               </div>
             </div>
           </div>
         </div>
-        <a href="#" className="bg-purple-600 text-white no-underline rounded-xl py-2.5 px-4 font-semibold shadow-lg shadow-purple-600/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-purple-600/40">
-          <img src="/save.svg" alt="Cloud" className="w-4.5 h-4.5 mr-2 inline" /> save
+        <a href="#" onClick={(e) => handleSave(e as any)} className="bg-purple-600 text-white no-underline rounded-xl py-2.5 px-4 font-semibold shadow-lg shadow-purple-600/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-purple-600/40">
+          <img src="/save.svg" alt="Cloud" className="w-4.5 h-4.5 mr-2 inline" /> {isSaving ? 'Saving...' : 'save'}
         </a>
           </div>
         </main>
