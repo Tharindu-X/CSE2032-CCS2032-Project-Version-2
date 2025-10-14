@@ -3,6 +3,7 @@ import Sidebar from "../../../components/common/sidebar/studentSidebar";
 import Navbar from "../../../components/common/navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import { useDarkMode } from "../darkmodecontext/DarkModeContext";
+import RecentlyApplied from "../../../components/cards/recentAppliedCard/RecentAppliedCard";
 
 export default function Applications() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -12,6 +13,34 @@ export default function Applications() {
   const [avatarUrl, setAvatarUrl] = useState("https://avatars.githubusercontent.com/u/9919?s=64");
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
+
+  // Sample applications data
+  const applications = [
+    {
+      id: 1,
+      imageUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop&crop=center",
+      jobTitle: "Frontend Developer",
+      companyName: "TechCorp Inc.",
+      appliedDate: "2024-01-15",
+      status: "pending" as const
+    },
+    {
+      id: 2,
+      imageUrl: "https://images.unsplash.com/photo-1549924231-f129b911e442?w=100&h=100&fit=crop&crop=center",
+      jobTitle: "React Developer",
+      companyName: "StartupXYZ",
+      appliedDate: "2024-01-10",
+      status: "approved" as const
+    },
+    {
+      id: 3,
+      imageUrl: "https://images.unsplash.com/photo-1599305445771-b384be276ebf?w=100&h=100&fit=crop&crop=center",
+      jobTitle: "Full Stack Engineer",
+      companyName: "Innovation Labs",
+      appliedDate: "2024-01-05",
+      // No status - will not show status badge
+    }
+  ];
 
   const handleProfileUpdate = (username: string, avatarUrl: string) => {
     setUserName(username);
@@ -81,20 +110,24 @@ export default function Applications() {
                 <h3 className="m-0" style={{ color: isDarkMode ? '#f9fafb' : '#0f172a' }}>Previous Applications</h3>
               </div>
               <div className="p-4">
-                <table id="applicationsTable" className="w-full border-collapse">
-                  <thead>
-                    <tr className="text-left" style={{ color: isDarkMode ? '#9ca3af' : '#475569' }}>
-                      <th className="py-2.5 px-1.5 border-b" style={{ borderColor: isDarkMode ? '#374151' : '#e2e8f0' }}>Company</th>
-                      <th className="py-2.5 px-1.5 border-b" style={{ borderColor: isDarkMode ? '#374151' : '#e2e8f0' }}>Job Title</th>
-                      <th className="py-2.5 px-1.5 border-b" style={{ borderColor: isDarkMode ? '#374151' : '#e2e8f0' }}>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody id="applicationsTableBody">
-                    <tr>
-                      <td colSpan={3} className="py-3.5 px-1.5" style={{ color: isDarkMode ? '#6b7280' : '#94a3b8' }}>No applications yet.</td>
-                    </tr>
-                  </tbody>
-                </table>
+                {applications.length > 0 ? (
+                  <div className="space-y-4">
+                    {applications.map((application) => (
+                      <RecentlyApplied
+                        key={application.id}
+                        imageUrl={application.imageUrl}
+                        jobTitle={application.jobTitle}
+                        companyName={application.companyName}
+                        appliedDate={application.appliedDate}
+                        status={application.status}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8" style={{ color: isDarkMode ? '#6b7280' : '#94a3b8' }}>
+                    <p>No applications yet.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
