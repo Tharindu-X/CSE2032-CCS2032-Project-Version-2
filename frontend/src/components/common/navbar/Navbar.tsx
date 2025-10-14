@@ -1,5 +1,10 @@
 
 import React, { useState } from 'react';
+
+import search1Icon from "../../../assets/search1.svg";
+import moonIcon from "../../../assets/moon.svg";
+import bellIcon from "../../../assets/bell.svg";
+
 import NotificationPopup from '../popups/NotificationPopup';
 
 // Local color tokens (kept in sync with sidebar)
@@ -154,7 +159,6 @@ export default function Navbar(props: NavbarProps) {
           style={{
             border: "none",
             background: "transparent",
-            color: deepPurple,
             cursor: "pointer",
             fontSize: 18,
             padding: "4px",
@@ -164,29 +168,22 @@ export default function Navbar(props: NavbarProps) {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "scale(1.1)";
-            e.currentTarget.style.background = "rgba(109,40,217,0.1)";
+            e.currentTarget.style.background = "rgba(109,40,217,0.08)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "scale(1)";
             e.currentTarget.style.background = "transparent";
           }}
         >
-          <span
-            aria-hidden
-            style={{
-              width: 24,
-              height: 24,
-              display: "inline-block",
-              backgroundColor: deepPurple,
-              WebkitMaskImage: "url(/search1.svg)",
-              maskImage: "url(/search1.svg)",
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-              WebkitMaskSize: "contain",
-              maskSize: "contain",
-            }}
+          <img 
+            src={search1Icon} 
+            alt="search" 
+            style={{ 
+              width: 24, 
+              height: 24, 
+              display: "block",
+              filter: "invert(21%) sepia(78%) saturate(3417%) hue-rotate(258deg) brightness(89%) contrast(98%)" 
+            }} 
           />
         </button>
       </form>
@@ -221,24 +218,7 @@ export default function Navbar(props: NavbarProps) {
             }}
           >
             <span style={{ marginRight: 8}}>
-              <span
-                aria-hidden
-                style={{
-                  width: 24,
-                  height: 24,
-                  display: "inline-block",
-                  backgroundColor: isDarkMode ? "white" : "black",
-                  WebkitMaskImage: "url(/moon.svg)",
-                  maskImage: "url(/moon.svg)",
-                  WebkitMaskRepeat: "no-repeat",
-                  maskRepeat: "no-repeat",
-                  WebkitMaskPosition: "center",
-                  maskPosition: "center",
-                  WebkitMaskSize: "contain",
-                  maskSize: "contain",
-                  filter: "none",
-                }}
-              />
+              <img src={moonIcon} alt="theme" style={{ width: 24, height: 24, display: "block", filter: isDarkMode ? "invert(1)" : "none" }} />
             </span>
           </label>
           <div style={{ position: "relative" }}>
@@ -276,23 +256,9 @@ export default function Navbar(props: NavbarProps) {
                 }
               }}
             >
-          <span style={{ marginRight: 8}}><span
-              aria-hidden
-              style={{
-                width: 24,
-                height: 24,
-                display: "inline-block",
-                backgroundColor: isDarkMode ? "#d1d5db" : "black",
-                WebkitMaskImage: "url(/bell.svg)",
-                maskImage: "url(/bell.svg)",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-              }}
-            /></span>
+          <span style={{ marginRight: 8}}>
+            <img src={bellIcon} alt="notifications" style={{ width: 24, height: 24, display: "block", opacity: isDarkMode ? 0.85 : 1 }} />
+          </span>
             <span
               className="num"
               style={{
