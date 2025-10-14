@@ -20,11 +20,9 @@ import JobApplicationsPageWrapper from "./pages/company/dashboard/JobApplication
 // import CompanyAnalytics from "./pages/company/analytics/CompanyAnalytics";
 
 // Student Pages
-// import StudentDashboard from "./pages/student/dashboard/StudentDashboard";
-// import StudentProfile from "./pages/student/profile/StudentProfile";
-// import StudentSettings from "./pages/student/settings/StudentSettings";
-// import RecentlyApplied from "./pages/student/recentApplied/RecentlyApplied";
-// import SavedJobs from "./pages/student/savedJobs/SavedJobs";
+import StudentDashboard from "./pages/student/dashboard/StudentDashboard";
+import StudentSettings from "./pages/student/settings/StudentSettings";
+import Applications from "./pages/student/applications/Applications";
 
 // Admin Pages
 // import CGUDashboard from "./pages/cgu/dashboard/CGUDashboard";
@@ -88,17 +86,28 @@ export default function App() {
           </ProtectedRoute>
         } 
       />
-      {/* Student Routes - Temporarily disabled until components are created */}
+      {/* Student Routes */}
       <Route 
         path="/student/dashboard" 
         element={
           <ProtectedRoute allowedRoles={['student']}>
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4">Student Dashboard</h1>
-                <p className="text-gray-600">Student dashboard is coming soon!</p>
-              </div>
-            </div>
+            <StudentDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/student/settings" 
+        element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <StudentSettings />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/student/applications" 
+        element={
+          <ProtectedRoute allowedRoles={['student']}>
+            <Applications />
           </ProtectedRoute>
         } 
       />
@@ -124,6 +133,8 @@ export default function App() {
       <Route path="/edit-profile" element={<Navigate to="/company/edit-profile" replace />} />
       <Route path="/job/:jobId/applications" element={<Navigate to="/company/job/:jobId/applications" replace />} />
       <Route path="/dashboard" element={<Navigate to="/student/dashboard" replace />} />
+      <Route path="/applications" element={<Navigate to="/student/applications" replace />} />
+      <Route path="/settings" element={<Navigate to="/student/settings" replace />} />
 
       {/* Catch all route */}
       <Route path="*" element={<Navigate to="/" replace />} />

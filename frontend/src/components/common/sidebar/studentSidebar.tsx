@@ -1,6 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+
+import analyticsIcon from "../../../assets/analytics.svg";
+import applicationsIcon from "../../../assets/applications.svg";
+import browseJobsIcon from "../../../assets/browseJobs.svg";
+import companyIcon from "../../../assets/company.svg";
+import settingsIcon from "../../../assets/settings.svg";
+import logoutIcon from "../../../assets/logout.svg";  
+
 import LogoutPopup from "../popups/LogoutPopup";
 import ProfilePopup from "../popups/ProfilePopup";
+import { useAuth } from "../../../context/AuthContext";
 
 type SidebarProps = {
   activeKey?: "dashboard" | "applications" | "browse" | "companies" | "settings";
@@ -39,6 +48,9 @@ export default function Sidebar(props: SidebarProps) {
     onProfilePopupChange,
   } = props;
 
+  const { user, token } = useAuth();
+  const [resolvedUserName, setResolvedUserName] = useState<string>(userName || "User");
+
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
 
@@ -70,12 +82,45 @@ export default function Sidebar(props: SidebarProps) {
 
   const handleProfileSave = (username: string, avatarUrl: string) => {
     onProfileUpdate?.(username, avatarUrl);
+    setResolvedUserName(username);
     setShowProfilePopup(false);
     onProfilePopupChange?.(false);
   };
 
+  useEffect(() => {
+    setResolvedUserName(userName || "User");
+  }, [userName]);
+
+  useEffect(() => {
+    const fetchUserSettings = async () => {
+      try {
+        if (!user?.email || !token) return;
+        const response = await fetch(`http://localhost:5000/api/student/${encodeURIComponent(user.email)}/settings`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json?.message || 'Failed to fetch settings');
+        }
+        const firstName = json?.data?.f_name || json?.data?.first_name || json?.data?.firstName;
+        const lastName = json?.data?.l_name || json?.data?.last_name || json?.data?.lastName;
+        const combined = [firstName, lastName].filter(Boolean).join(' ').trim();
+        const nameFromApi = combined || json?.data?.full_name || json?.data?.name || json?.data?.username;
+        if (typeof nameFromApi === 'string' && nameFromApi.trim()) {
+          setResolvedUserName(nameFromApi);
+        }
+      } catch (_err) {
+        // leave fallback name; non-fatal for UI
+      }
+    };
+    fetchUserSettings();
+  }, [user?.email, token]);
+
   const currentText = isDarkMode ? "#f9fafb" : textPrimary;
-  const iconColor = isDarkMode ? "#f9fafb" : "black";
 
   const item = (
     key: SidebarProps["activeKey"],
@@ -203,78 +248,28 @@ export default function Sidebar(props: SidebarProps) {
         {item(
           "dashboard",
           "Dashboard",
-          <img src="/analytics.svg" alt="Dashboard" style={{ width: 18, height: 18 }} />
+          <img src={analyticsIcon} alt="Dashboard" style={{ width: 18, height: 18 }} />
         )}
-        {item("applications", "Applications", <span style={{ marginRight: 8}}><span
-              aria-hidden
-              style={{
-                width: 18,
-                height: 18,
-                display: "inline-block",
-                backgroundColor: iconColor,
-                WebkitMaskImage: "url(/applications.svg)",
-                maskImage: "url(/applications.svg)",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-              }}
-            /></span>)}
-        {item("browse", "Browse Jobs", <span style={{ marginRight: 8}}><span
-              aria-hidden
-              style={{
-                width: 18,
-                height: 18,
-                display: "inline-block",
-                backgroundColor: iconColor,
-                WebkitMaskImage: "url(/browseJobs.svg)",
-                maskImage: "url(/browseJobs.svg)",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-              }}
-            /></span>)}
-        {item("companies", "Companies", <span style={{ marginRight: 8}}><span
-              aria-hidden
-              style={{
-                width: 18,
-                height: 18,
-                display: "inline-block",
-                backgroundColor: iconColor,
-                WebkitMaskImage: "url(/company.svg)",
-                maskImage: "url(/company.svg)",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-              }}
-              
-            /></span>)}
-            {item("settings", "Settings", <span style={{ marginRight: 8}}><span
-              aria-hidden
-              style={{
-                width: 18,
-                height: 18,
-                display: "inline-block",
-                backgroundColor: iconColor,
-                WebkitMaskImage: "url(/settings.svg)",
-                maskImage: "url(/settings.svg)",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-              }}
-              
-            /></span>)}
+        {item(
+          "applications",
+          "Applications",
+          <img src={applicationsIcon} alt="Applications" style={{ width: 18, height: 18 }} />
+        )}
+        {item(
+          "browse",
+          "Browse Jobs",
+          <img src={browseJobsIcon} alt="Browse Jobs" style={{ width: 18, height: 18 }} />
+        )}
+        {item(
+          "companies",
+          "Companies",
+          <img src={companyIcon} alt="Companies" style={{ width: 18, height: 18 }} />
+        )}
+        {item(
+          "settings",
+          "Settings",
+          <img src={settingsIcon} alt="Settings" style={{ width: 18, height: 18 }} />
+        )}
       </ul>
 
       <ul className="side-menu" style={{ padding: 0, margin: "18px 0 24px" }}>
@@ -322,23 +317,7 @@ export default function Sidebar(props: SidebarProps) {
                 e.currentTarget.style.transform = "scale(1)";
               }}
             >
-            <span style={{ marginRight: 8}}><span
-              aria-hidden
-              style={{
-                width: 18,
-                height: 18,
-                display: "inline-block",
-                backgroundColor: iconColor,
-                WebkitMaskImage: "url(/logout.svg)",
-                maskImage: "url(/logout.svg)",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-              }}
-            /></span>
+            <img src={logoutIcon} alt="Logout" style={{ width: 18, height: 18, marginRight: 8 }} />
             </span>
             <span className="text">Logout</span>
           </a>
@@ -409,7 +388,7 @@ export default function Sidebar(props: SidebarProps) {
             }}
           />
           <div className="profile-info">
-            <h4 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{userName}</h4>
+            <h4 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{resolvedUserName}</h4>
             <p style={{ margin: "4px 0 0", color: "#e9d5ff", fontWeight: 600 }}>
               {userRole}
             </p>

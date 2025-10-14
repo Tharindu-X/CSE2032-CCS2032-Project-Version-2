@@ -1,4 +1,12 @@
 import { useState, useRef, useEffect } from "react";
+
+import cloudIcon from "../../../assets/cloud.svg";
+import folderIcon from "../../../assets/folder.svg";
+import trophyIcon from "../../../assets/trophy.svg";
+import companyIcon from "../../../assets/company.svg";
+import searchIcon from "../../../assets/search2.svg";
+import sortIcon from "../../../assets/sort.svg";
+
 import Sidebar from "../../../components/common/sidebar/studentSidebar";
 import Navbar from "../../../components/common/navbar/Navbar";
 import { useNavigate } from "react-router-dom";
@@ -179,7 +187,7 @@ export default function StudentDashboard() {
         }}
         className="bg-purple-600 text-white no-underline rounded-xl py-2.5 px-4 font-semibold shadow-lg shadow-purple-600/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-purple-600/40 inline-flex items-center"
       >
-        <img src="/cloud.svg" alt="Cloud" className="w-4.5 h-4.5 mr-2" />
+        <img src={cloudIcon} alt="Cloud" className="w-4.5 h-4.5 mr-2" />
         Upload Your CV
       </a>
     </div>
@@ -188,9 +196,9 @@ export default function StudentDashboard() {
           {/* KPI Cards */}
           <ul className="list-none grid grid-cols-3 gap-5 p-0 mb-7">
             {[
-              { icon: <img src="/folder.svg" alt="Applications" className="w-6 h-6" />, title: "Applications Submitted", color: "bg-blue-100" },
-              { icon: <img src="/trophy.svg" alt="Trophy" className="w-6 h-6" />, title: "Selected for interview", color: "bg-green-100" },
-              { icon: <img src="/company.svg" alt="Company" className="w-6 h-6" />, title: "Companies you follow", color: "bg-yellow-100" },
+              { icon: <img src={folderIcon} alt="Applications" className="w-6 h-6" />, title: "Applications Submitted", color: "bg-blue-100" },
+              { icon: <img src={trophyIcon} alt="Trophy" className="w-6 h-6" />, title: "Selected for interview", color: "bg-green-100" },
+              { icon: <img src={companyIcon} alt="Company" className="w-6 h-6" />, title: "Companies you follow", color: "bg-yellow-100" },
             ].map((c, i) => (
               <li key={i} className="flex items-center gap-4 rounded-2xl p-5 border transition-all hover:-translate-y-1 hover:shadow-lg hover:border-purple-600 cursor-pointer" style={{
                 backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
@@ -231,8 +239,8 @@ export default function StudentDashboard() {
                     color: isDarkMode ? '#f9fafb' : '#0f172a'
                   }}
                 />
-                <img src="/search2.svg" alt="Search applications" className="w-6 h-6 cursor-pointer transition-transform hover:scale-110" />
-                <img src="/sort.svg" alt="Sort" className="w-6 h-6 cursor-pointer transition-transform hover:scale-110" />
+                <img src={searchIcon} alt="Search applications" className="w-6 h-6 cursor-pointer transition-transform hover:scale-110" />
+                <img src={sortIcon} alt="Sort" className="w-6 h-6 cursor-pointer transition-transform hover:scale-110" />
               </div>
             </div>
             <div className="p-4">

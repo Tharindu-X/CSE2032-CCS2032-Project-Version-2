@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../../../components/common/sidebar/studentSidebar";
 import Navbar from "../../../components/common/navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import { useDarkMode } from "../darkmodecontext/DarkModeContext";
 import RecentlyApplied from "../../../components/cards/recentAppliedCard/RecentAppliedCard";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Applications() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -13,34 +14,54 @@ export default function Applications() {
   const [avatarUrl, setAvatarUrl] = useState("https://avatars.githubusercontent.com/u/9919?s=64");
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
+  const { user, token } = useAuth();
 
-  // Sample applications data
-  const applications = [
-    {
-      id: 1,
-      imageUrl: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop&crop=center",
-      jobTitle: "Frontend Developer",
-      companyName: "TechCorp Inc.",
-      appliedDate: "2024-01-15",
-      status: "pending" as const
-    },
-    {
-      id: 2,
-      imageUrl: "https://images.unsplash.com/photo-1549924231-f129b911e442?w=100&h=100&fit=crop&crop=center",
-      jobTitle: "React Developer",
-      companyName: "StartupXYZ",
-      appliedDate: "2024-01-10",
-      status: "short listed" as const
-    },
-    {
-      id: 3,
-      imageUrl: "https://images.unsplash.com/photo-1599305445771-b384be276ebf?w=100&h=100&fit=crop&crop=center",
-      jobTitle: "Full Stack Engineer",
-      companyName: "Innovation Labs",
-      appliedDate: "2024-01-05",
-      status: "rejected" as const
-    }
-  ];
+  type Application = {
+    id: number;
+    imageUrl: string;
+    jobTitle: string;
+    companyName: string;
+    appliedDate: string;
+    status?: 'pending' | 'short listed' | 'rejected';
+  };
+
+  const [applications, setApplications] = useState<Application[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        if (!user?.email || !token) return;
+        const response = await fetch(`http://localhost:5000/api/student/${encodeURIComponent(user.email)}/applications`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json?.message || 'Failed to fetch applications');
+        }
+
+        // Map backend fields to component shape
+        const mapped: Application[] = (Array.isArray(json?.data) ? json.data : []).map((app: any) => ({
+          id: app.application_id ?? app.id ?? Math.random(),
+          imageUrl: app.company_logo_url || app.logoUrl || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop&crop=center',
+          jobTitle: app.job_title || app.title || 'Job',
+          companyName: app.company_name || app.company || 'Company',
+          appliedDate: app.application_date ? new Date(app.application_date).toISOString().slice(0,10) : (app.appliedDate || ''),
+          status: app.status as Application['status'] | undefined,
+        }));
+        setApplications(mapped);
+        setError(null);
+      } catch (err: any) {
+        setApplications([]);
+        setError(err?.message || 'Failed to fetch applications');
+      }
+    };
+    fetchApplications();
+  }, [user?.email, token]);
 
   const handleProfileUpdate = (username: string, avatarUrl: string) => {
     setUserName(username);
@@ -110,7 +131,15 @@ export default function Applications() {
                 <h3 className="m-0" style={{ color: isDarkMode ? '#f9fafb' : '#0f172a' }}>Previous Applications</h3>
               </div>
               <div className="p-4">
-                {applications.length > 0 ? (
+                {applications === null ? (
+                  <div className="text-center py-8" style={{ color: isDarkMode ? '#6b7280' : '#94a3b8' }}>
+                    <p>Loading applications...</p>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-8 text-red-500">
+                    <p>{error}</p>
+                  </div>
+                ) : applications.length > 0 ? (
                   <div className="space-y-4">
                     {applications.map((application) => (
                       <RecentlyApplied

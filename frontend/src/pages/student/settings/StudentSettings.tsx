@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+
+import SaveIcon from "../../../assets/save.svg";
+
 import Sidebar from "../../../components/common/sidebar/studentSidebar";
 import Navbar from "../../../components/common/navbar/Navbar";
 import { useNavigate } from "react-router-dom";
@@ -368,7 +371,7 @@ export default function Settings() {
           </div>
         </div>
         <a href="#" onClick={(e) => handleSave(e as any)} className="bg-purple-600 text-white no-underline rounded-xl py-2.5 px-4 font-semibold shadow-lg shadow-purple-600/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-purple-600/40">
-          <img src="/save.svg" alt="Cloud" className="w-4.5 h-4.5 mr-2 inline" /> {isSaving ? 'Saving...' : 'save'}
+          <img src={SaveIcon} alt="Cloud" className="w-4.5 h-4.5 mr-2 inline" /> {isSaving ? 'Saving...' : 'save'}
         </a>
           </div>
         </main>
