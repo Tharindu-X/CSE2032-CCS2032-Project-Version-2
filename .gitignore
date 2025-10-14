@@ -22,7 +22,7 @@ build
 *.local
 
 # Environment variables
-.env
+server/.env
 .env.local
 .env.*.local
 
