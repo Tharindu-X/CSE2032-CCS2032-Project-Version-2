@@ -30,7 +30,7 @@ export default function Applications() {
       jobTitle: "React Developer",
       companyName: "StartupXYZ",
       appliedDate: "2024-01-10",
-      status: "approved" as const
+      status: "short listed" as const
     },
     {
       id: 3,
@@ -38,7 +38,7 @@ export default function Applications() {
       jobTitle: "Full Stack Engineer",
       companyName: "Innovation Labs",
       appliedDate: "2024-01-05",
-      // No status - will not show status badge
+      status: "rejected" as const
     }
   ];
 
