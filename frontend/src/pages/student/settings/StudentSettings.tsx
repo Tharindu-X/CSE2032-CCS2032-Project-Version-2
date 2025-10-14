@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import SaveIcon from "../../../assets/save.svg";
+import UserAvatar from "../../../assets/user.svg";
 
 import Sidebar from "../../../components/common/sidebar/studentSidebar";
 import Navbar from "../../../components/common/navbar/Navbar";
@@ -12,11 +13,11 @@ export default function Settings() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
   const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
-  const [userName, setUserName] = useState("John Doe");
-  const [avatarUrl, setAvatarUrl] = useState("https://avatars.githubusercontent.com/u/9919?s=64");
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
   const { user, token } = useAuth();
+  const [userName, setUserName] = useState(user?.name || user?.email || "");
+  const [avatarUrl, setAvatarUrl] = useState(UserAvatar as unknown as string);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -54,6 +55,9 @@ export default function Settings() {
         setDegree(data.dgree || "");
         setEmail(data.email || user.email);
         setDepartmentName(data.dep_name || "");
+        // Update display name from fetched profile if available
+        const combinedName = `${data.f_name || ""} ${data.l_name || ""}`.trim();
+        setUserName(combinedName || user?.name || user?.email || "");
       } catch (err: any) {
         // Non-fatal for page usage; show inline error on save only
         console.error(err);

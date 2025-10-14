@@ -25,7 +25,7 @@ import StudentSettings from "./pages/student/settings/StudentSettings";
 import Applications from "./pages/student/applications/Applications";
 
 // Admin Pages
-// import CGUDashboard from "./pages/cgu/dashboard/CGUDashboard";
+import CGUDashboard from "./pages/cgu/dashboard/CGUDashboard";
 // import CompanyApprovals from "./pages/cgu/dashboard/companuApprovels/CompanyApprovals";
 
 // Loading Component
@@ -112,17 +112,12 @@ export default function App() {
         } 
       />
 
-      {/* Admin Routes - Temporarily disabled until components are created */}
+      {/* Admin Routes */}
       <Route 
         path="/admin/dashboard" 
         element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4">Admin Dashboard</h1>
-                <p className="text-gray-600">Admin dashboard is coming soon!</p>
-              </div>
-            </div>
+            <CGUDashboard />
           </ProtectedRoute>
         } 
       />
