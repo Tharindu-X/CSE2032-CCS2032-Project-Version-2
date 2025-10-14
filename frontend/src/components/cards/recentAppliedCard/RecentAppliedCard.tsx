@@ -6,7 +6,7 @@ interface RecentlyAppliedProps {
   jobTitle: string;
   companyName: string;
   appliedDate: string;
-  status?: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'short listed' | 'rejected';
 }
 
 const RecentlyApplied: React.FC<RecentlyAppliedProps> = ({
@@ -23,7 +23,7 @@ const RecentlyApplied: React.FC<RecentlyAppliedProps> = ({
     switch (status) {
       case 'pending':
         return 'text-yellow-600';
-      case 'approved':
+      case 'short listed':
         return 'text-green-600';
       case 'rejected':
         return 'text-red-600';
@@ -37,7 +37,7 @@ const RecentlyApplied: React.FC<RecentlyAppliedProps> = ({
     switch (status) {
       case 'pending':
         return 'bg-yellow-100';
-      case 'approved':
+      case 'short listed':
         return 'bg-green-100';
       case 'rejected':
         return 'bg-red-100';
@@ -99,12 +99,12 @@ const RecentlyApplied: React.FC<RecentlyAppliedProps> = ({
                 style={{
                   backgroundColor: isDarkMode 
                     ? status === 'pending' ? '#451a03' 
-                      : status === 'approved' ? '#064e3b' 
+                      : status === 'short listed' ? '#064e3b' 
                       : '#7f1d1d'
                     : getStatusBgColor(status).replace('bg-', 'bg-'),
                   color: isDarkMode 
                     ? status === 'pending' ? '#fbbf24'
-                      : status === 'approved' ? '#10b981'
+                      : status === 'short listed' ? '#10b981'
                       : '#ef4444'
                     : getStatusColor(status).replace('text-', 'text-')
                 }}
