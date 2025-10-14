@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
-import { MapPin, Clock, Users, Calendar } from "lucide-react"
+import { MapPin, Clock, Users, Calendar, GraduationCap } from "lucide-react"
 import { Link } from "react-router-dom";
+import { useEffect, useState, type JSXElementConstructor, type Key, type ReactElement, type ReactNode, type ReactPortal } from "react";
+
 interface Job {
   job_id: string
   job_title: string
@@ -18,11 +20,48 @@ interface Job {
   created_at: string
 }
 
+interface ApplicantPreview {
+  name: string;
+  year?: number;
+  degree?: string;
+}
+
 interface JobCardProps {
   job: Job
 }
 
 export function JobCard({ job }: JobCardProps) {
+  const [previews, setPreviews] = useState<ApplicantPreview[]>([]);
+  const [loadingPreviews, setLoadingPreviews] = useState(false);
+
+  useEffect(() => {
+    const fetchPreviews = async () => {
+      try {
+        setLoadingPreviews(true);
+        const token = localStorage.getItem('token');
+        const res = await fetch(`http://localhost:5000/api/company/jobs/${job.job_id}/applications`, {
+          headers: { Authorization: `Bearer ${token || ''}` }
+        });
+        if (!res.ok) {
+          setPreviews([]);
+          return;
+        }
+        const apps = await res.json();
+        const mapped: ApplicantPreview[] = (Array.isArray(apps) ? apps : []).slice(0, 3).map((a: any) => ({
+          name: [a.f_name, a.l_name].filter(Boolean).join(' ').trim() || 'Unknown',
+          year: a.year,
+          degree: a.dgree
+        }));
+        setPreviews(mapped);
+      } catch {
+        setPreviews([]);
+      } finally {
+        setLoadingPreviews(false);
+      }
+    };
+    fetchPreviews();
+  }, [job.job_id]);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -41,7 +80,7 @@ export function JobCard({ job }: JobCardProps) {
   const tags = Array.isArray(job.job_tags)
     ? job.job_tags
     : typeof job.job_tags === "string"
-    ? job.job_tags.split(",").map((t) => t.trim())
+    ? job.job_tags.split(",").map((t: string) => t.trim())
     : []
 
   return (
@@ -99,7 +138,7 @@ export function JobCard({ job }: JobCardProps) {
 
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
+            {tags.map((tag: boolean | Key | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined) => (
               <Badge
                 key={tag}
                 variant="secondary"
@@ -122,11 +161,34 @@ export function JobCard({ job }: JobCardProps) {
               Closes {formatDate(job.closing_date)}
             </div>
           </div>
-<Link to={`/job/${job.job_id}/applications`}>
-  <Button variant="outline" size="sm">
-    View Details
-  </Button>
-</Link>
+          <Link to={`/job/${job.job_id}/applications`}>
+            <Button variant="outline" size="sm">
+              View Details
+            </Button>
+          </Link>
+        </div>
+
+        {/* Applicants preview */}
+        <div className="mt-3">
+          {loadingPreviews ? (
+            <div className="text-xs text-muted-foreground">Loading recent applicants...</div>
+          ) : previews.length > 0 ? (
+            <div className="flex flex-col gap-1">
+              {previews.map((p, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <GraduationCap className="w-3 h-3" />
+                  <span className="font-medium text-foreground">{p.name}</span>
+                  {p.degree && <span>• {p.degree}</span>}
+                  {p.year ? <span>• Year {p.year}</span> : null}
+                </div>
+              ))}
+              {job.no_of_applicants > previews.length && (
+                <div className="text-xs text-muted-foreground">+{job.no_of_applicants - previews.length} more</div>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-muted-foreground">No applicants yet</div>
+          )}
         </div>
       </CardContent>
     </Card>

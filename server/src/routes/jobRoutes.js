@@ -1,21 +1,18 @@
 import express from "express";
 import { jobRepository } from "../repositories/jobRepository.js";
 import { authenticateToken } from '../middlewears/authMiddleware.js';
-import { addJob } from '../controllers/jobController.js';
+import { addJob, applyToJob, getAllJobs } from '../controllers/jobController.js';
 
 const router = express.Router();
 
 // POST /api/jobs/add - Add a job for the logged-in company (using controller)
 router.post('/add', authenticateToken, addJob);
 
-// GET all jobs
-router.get("/", async (req, res) => {
-  try {
-    res.json(jobs);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Apply to job
+router.post('/:id/apply', authenticateToken, applyToJob);
+
+// GET all jobs (controller -> DB)
+router.get("/", getAllJobs);
 
 // POST new job (using repository)
 router.post("/", async (req, res) => {

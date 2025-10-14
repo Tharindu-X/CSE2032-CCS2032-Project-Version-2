@@ -115,5 +115,37 @@ export const CompanyRepository = {
       WHERE isDeleted = 0
     `);
     return rows;
+  },
+
+  async findPending() {
+    const [rows] = await pool.execute(`
+      SELECT 
+        id,
+        com_name,
+        reg_no,
+        email,
+        bussiness_type,
+        url,
+        bio,
+        contact_no,
+        address,
+        no_of_employees,
+        image,
+        status,
+        isDeleted
+      FROM company 
+      WHERE status = 0 AND isDeleted = 0
+    `);
+    return rows;
+  },
+
+  async approveById(id) {
+    const [result] = await pool.execute(`UPDATE company SET status = 1 WHERE id = ? AND isDeleted = 0`, [id]);
+    return result.affectedRows > 0;
+  },
+
+  async activateById(id) {
+    const [result] = await pool.execute(`UPDATE company SET status = 1, isDeleted = 0 WHERE id = ?`, [id]);
+    return result.affectedRows > 0;
   }
 };

@@ -25,7 +25,7 @@ export default function StudentDashboard() {
   const [avatarUrl, setAvatarUrl] = useState("https://avatars.githubusercontent.com/u/9919?s=64");
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
 
   const [applicationsSubmitted, setApplicationsSubmitted] = useState<number | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
@@ -131,11 +131,13 @@ export default function StudentDashboard() {
             activeKey="dashboard"
             isOpen={isSidebarOpen}
             onNavigate={(key) => {
-              if (key === "applications") navigate("/applications");
-              if (key === "dashboard") navigate("/");
-              if (key === "settings") navigate("/settings");
+              if (key === "applications") navigate("/student/applications");
+              if (key === "dashboard") navigate("/student/dashboard");
+              if (key === "settings") navigate("/student/settings");
+              if (key === "browse") navigate("/jobs");
+              if (key === "companies") navigate("/companies");
             }}
-            onLogout={() => navigate("/home")}
+            onLogout={() => { logout(); navigate("/"); }}
             onLogoutPopupChange={setIsLogoutPopupOpen}
             isDarkMode={isDarkMode}
             userName={userName}

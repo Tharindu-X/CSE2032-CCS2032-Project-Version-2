@@ -18,10 +18,13 @@ interface SidebarProps {
     type: string;
     logo: string;
     isLoading: boolean;
+    status?: number;
   };
+  jobCount?: number;
+  applicationCount?: number;
 }
 
-export function Sidebar({ company }: SidebarProps) {
+export function Sidebar({ company, jobCount = 0, applicationCount = 0 }: SidebarProps) {
   const [activeItem, setActiveItem] = useState("Dashboard");
 
   const menuItems = [
@@ -29,8 +32,8 @@ export function Sidebar({ company }: SidebarProps) {
       section: "MAIN",
       items: [
         { name: "Dashboard", icon: LayoutDashboard, count: null },
-        { name: "Job Postings", icon: FileText, count: 0 },
-        { name: "Applications", icon: Users, count: 0 },
+        { name: "Job Postings", icon: FileText, count: jobCount },
+        { name: "Applications", icon: Users, count: applicationCount },
       ],
     },
     {
@@ -81,9 +84,13 @@ export function Sidebar({ company }: SidebarProps) {
         </div>
         <Badge
           variant="secondary"
-          className="bg-green-100 text-green-700 hover:bg-green-200 transition-all duration-200 hover:scale-105"
+          className={`transition-all duration-200 hover:scale-105 ${
+            company.status === 1 
+              ? "bg-green-100 text-green-700 hover:bg-green-200" 
+              : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+          }`}
         >
-          Active
+          {company.status === 1 ? "Active" : "Pending"}
         </Badge>
       </div>
 

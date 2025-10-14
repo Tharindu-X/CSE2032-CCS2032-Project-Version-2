@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Sidebar } from "./components/sidebar.tsx"
 import { MetricCard } from "./components/metric-card.tsx"
 import { JobPostingsSection } from "./components/job-postings-section.tsx"
 import { Button } from "./components/ui/button.tsx"
-import { FileText, Users, Eye, Clock, Download, Plus, User } from "lucide-react"
+import { FileText, Users, Eye, Clock, Download, Plus, User, LogOut } from "lucide-react"
 import mockData from "./data/mock-data.json"
+import { useAuth } from "../../../context/AuthContext";
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
 useEffect(() => {
   const fetchDashboard = async () => {
@@ -46,19 +49,20 @@ useEffect(() => {
     isLoading: true
   }
 
+  const jobs = data?.jobs || []
+  const totalApplications = jobs.reduce((sum: number, j: any) => sum + Number(j.no_of_applicants || 0), 0)
+
   const analytics = data?.analytics || {
-    activeJobs: 0,
-    totalApplications: 0,
+    activeJobs: jobs.length,
+    totalApplications: totalApplications,
     profileViews: 0,
     avgResponseTime: "0h",
     changes: { activeJobs: "+0%", totalApplications: "+0%", profileViews: "+0%", avgResponseTime: "+0%" }
   }
 
-  const jobs = data?.jobs || []
-
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar company={company} />
+      <Sidebar company={company} jobCount={jobs.length} applicationCount={totalApplications} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="border-b border-gray-200 bg-white px-6 py-4">
@@ -72,17 +76,35 @@ useEffect(() => {
                 <Download className="w-4 h-4" />
                 Export Data
               </Button>
-             <Link to="/company/post-job">
-               <Button className="gap-2 bg-purple-600 text-white hover:bg-purple-700">
-                <Plus className="w-4 h-4" />
-                Post New Job
-              </Button>
-         </Link>
+              {company.status === 1 && (
+                <Link to="/company/post-job">
+                  <Button className="gap-2 bg-purple-600 text-white hover:bg-purple-700">
+                    <Plus className="w-4 h-4" />
+                    Post New Job
+                  </Button>
+                </Link>
+              )}
+              {company.status === 0 && (
+                <div className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium">
+                  Pending Approval - Job posting disabled
+                </div>
+              )}
               <Link to="/company/dashboard/editCompanyProfile">
                 <Button variant="ghost" className="p-2">
                   <User className="w-4 h-4" />
                 </Button>
               </Link>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => {
+                  logout();
+                  navigate("/");
+                }}
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </Button>
             </div>
           </div>
         </header>
