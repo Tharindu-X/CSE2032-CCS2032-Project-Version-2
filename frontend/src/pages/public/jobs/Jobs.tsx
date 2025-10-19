@@ -78,7 +78,7 @@ useEffect(() => {
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/companies/approved");
+      const res = await fetch("http://localhost:5000/api/company/approved");
       const data = await res.json();
 
       console.log("Fetched companies:", data);

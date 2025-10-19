@@ -1,49 +1,51 @@
 import db from '../config/db.js';
-import { jobStore } from '../stores/jobStore.js';
+import { JobRepository } from '../repositories/jobRepository.js';
 
 // Get company dashboard info
 export const getCompanyDashboard = async (req, res) => {
   try {
-    const companyId = req.user?.id || '1'; // Use mock company ID if no user
+    const companyId = req.user?.id; // from JWT
+    if (!companyId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
-    console.log('Fetching dashboard for company:', companyId);
+    // Fetch company from DB
+    const [companyRows] = await db.query(
+      `SELECT id, com_name, bussiness_type, image, bio, contact_no, address, no_of_employees, status
+       FROM company WHERE id = ? AND isDeleted = 0`,
+      [companyId]
+    );
 
-    // Mock company data
+    if (!companyRows || companyRows.length === 0) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+
+    const companyRow = companyRows[0];
     const companyData = {
-      id: companyId,
-      name: 'Test Company',
-      type: 'Technology',
-      logo: '/generic-company-logo.png',
-      bio: 'A leading technology company specializing in innovative solutions.',
-      contact_no: '+1-555-0123',
-      address: '123 Tech Street, Silicon Valley, CA',
-      no_of_employees: 150,
-      image: '/company-image.jpg'
+      id: companyRow.id,
+      name: companyRow.com_name,
+      type: companyRow.bussiness_type,
+      logo: companyRow.image || '/generic-company-logo.png',
+      bio: companyRow.bio || '',
+      contact_no: companyRow.contact_no || '',
+      address: companyRow.address || '',
+      no_of_employees: companyRow.no_of_employees || 0,
+      status: companyRow.status, // 0=pending,1=active
     };
 
-    // Get jobs posted by this company from job store
-    const companyJobs = Array.from(jobStore.values()).filter(job => job.com_id === companyId);
+    // Fetch jobs for this company from DB
+    const jobs = await JobRepository.getJobsByCompanyId(companyId);
 
-    // Mock analytics based on actual posted jobs
+    // Basic analytics derived from DB jobs
     const analytics = {
-      activeJobs: companyJobs.length,
-      totalApplications: companyJobs.reduce((sum, j) => sum + parseInt(j.no_of_applicants || 0), 0),
-      profileViews: 1250,
-      avgResponseTime: "2 days",
-      changes: {
-        activeJobs: companyJobs.length > 0 ? "+12%" : "+0%",
-        totalApplications: companyJobs.length > 0 ? "+8%" : "+0%",
-        profileViews: "+15%",
-        avgResponseTime: "-1 day"
-      }
+      activeJobs: jobs.length,
+      totalApplications: jobs.reduce((sum, j) => sum + Number(j.no_of_applicants || 0), 0),
+      profileViews: 0,
+      avgResponseTime: '0h',
+      changes: { activeJobs: '+0%', totalApplications: '+0%', profileViews: '+0%', avgResponseTime: '+0%' }
     };
 
-    res.json({
-      company: companyData,
-      jobs: companyJobs, // Only show jobs posted by this company
-      analytics
-    });
-
+    res.json({ company: companyData, jobs, analytics });
   } catch (err) {
     console.error('Dashboard error:', err);
     res.status(500).json({ message: 'Server error', error: err.message });

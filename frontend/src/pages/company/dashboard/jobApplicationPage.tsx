@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Avatar, AvatarFallback } from "./components/ui/avatar"
 import { Button } from "./components/ui/button"
 import { Card } from "./components/ui/card"
-import { Mail, GraduationCap, Phone, Calendar } from "lucide-react"
+import { Mail, GraduationCap, Phone, Calendar, Link as LinkIcon } from "lucide-react"
 import axios from "axios"
 
 interface Student {
@@ -14,9 +14,11 @@ interface Student {
   dgree: string
   dep_name: string
   reg_no: string
+  linkedin_url?: string
 }
 
 interface Application {
+  job_title: string | null
   application_id: number
   student_id: number
   job_id: number
@@ -70,6 +72,7 @@ export default function JobApplicationsPage({ jobId }: { jobId: string }) {
             dgree: app.dgree,
             dep_name: app.dep_name,
             reg_no: app.reg_no,
+            linkedin_url: app.linkedin_url,
           },
         }))
 
@@ -126,7 +129,7 @@ export default function JobApplicationsPage({ jobId }: { jobId: string }) {
           <div className="mb-6">
             <p className="text-xs font-semibold text-gray-500 uppercase mb-2 px-3">Main</p>
             <a
-              href="/dashboard"
+              href="/company/dashboard"
               className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               Dashboard
@@ -143,7 +146,7 @@ export default function JobApplicationsPage({ jobId }: { jobId: string }) {
         <div className="max-w-5xl">
           {/* Back Button */}
           <a
-            href="/dashboard"
+            href="/company/dashboard"
             className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
           >
             Back to Dashboard
@@ -190,10 +193,17 @@ export default function JobApplicationsPage({ jobId }: { jobId: string }) {
                             <span>{application.student.dgree}</span>
                           </div>
 
-                          <div className="flex items-center gap-1.5">
-                            <Phone className="w-4 h-4" />
-                            <span className="text-gray-500">undefined</span>
-                          </div>
+                          {application.student.linkedin_url && (
+                            <a
+                              href={application.student.linkedin_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-1.5 text-purple-600 hover:text-purple-700"
+                            >
+                              <LinkIcon className="w-4 h-4" />
+                              LinkedIn
+                            </a>
+                          )}
                         </div>
 
                         <div className="mt-2 flex items-center gap-2">

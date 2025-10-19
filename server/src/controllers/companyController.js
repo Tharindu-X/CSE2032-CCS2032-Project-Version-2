@@ -96,3 +96,25 @@ export const updateCompany = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const getPendingCompanies = async (_req, res) => {
+  try {
+    const companies = await CompanyRepository.findPending();
+    res.json(companies);
+  } catch (error) {
+    console.error('Error fetching pending companies:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const approveCompany = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ok = await CompanyRepository.activateById(id);
+    if (!ok) return res.status(404).json({ message: 'Company not found' });
+    res.json({ message: 'Company approved and activated successfully' });
+  } catch (error) {
+    console.error('Error approving company:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

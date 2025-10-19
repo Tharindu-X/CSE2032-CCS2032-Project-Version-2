@@ -91,6 +91,8 @@ const PostJobPage: React.FC = () => {
 
       const data = await res.json();
       alert(`Job added successfully! Job ID: ${data.jobId}`);
+      // After posting, go to jobs page to see it
+      navigate("/jobs");
     } catch (err: any) {
       console.error(err);
       alert(`Error adding job: ${err.message}`);

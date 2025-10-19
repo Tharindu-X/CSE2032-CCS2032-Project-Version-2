@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, MapPin, Calendar, Users, Briefcase, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { type Job } from '../jobListening/JobListening';
+import { useAuth } from '../../../../context/AuthContext';
 
 interface JobDetailProps {
   job: Job;
@@ -8,6 +9,8 @@ interface JobDetailProps {
 }
 
 const JobDetail: React.FC<JobDetailProps> = ({ job, onClose }) => {
+  const { token, user } = useAuth();
+
   const getCompanyColor = (company: string) => {
     const colors = [
       'bg-purple-500',
@@ -31,6 +34,30 @@ const JobDetail: React.FC<JobDetailProps> = ({ job, onClose }) => {
         return 'bg-purple-100 text-purple-700';
       default:
         return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const handleApply = async () => {
+    if (!token || !user || user.role !== 'student') {
+      alert('Please login as a student to apply.');
+      return;
+    }
+    try {
+      const res = await fetch(`http://localhost:5000/api/jobs/${job.id}/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        alert('Applied successfully');
+        onClose();
+      } else if (res.status === 409) {
+        alert('You already applied to this job.');
+      } else {
+        alert(data?.message || 'Failed to apply');
+      }
+    } catch (err) {
+      alert('Server error while applying');
     }
   };
 
@@ -143,7 +170,7 @@ const JobDetail: React.FC<JobDetailProps> = ({ job, onClose }) => {
 
         {/* Apply Button */}
         <div className="flex items-center justify-center pt-6">
-          <button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
+          <button onClick={handleApply} className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg transform hover:scale-105">
             Apply Now
           </button>
         </div>

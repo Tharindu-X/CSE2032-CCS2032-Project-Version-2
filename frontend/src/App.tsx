@@ -49,8 +49,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Registration />} />
       <Route path="/signup" element={<Registration />} />
-      <Route path="/jobs" element={<Login />} />
-      <Route path="/companies" element={<Login />} />
+      <Route path="/jobs" element={<Jobs />} />
+      <Route path="/companies" element={<Companies companies={[]} />} />
       <Route path="/category" element={<Category />} />
 
       {/* Company Routes */}

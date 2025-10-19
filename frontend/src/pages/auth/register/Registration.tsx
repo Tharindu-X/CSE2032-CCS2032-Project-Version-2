@@ -104,7 +104,7 @@ export default function SignupPage() {
       <div className="w-full max-w-2xl rounded-4xl bg-white p-11 shadow-5xl">
         {/* Top Bar */}
         <div className="flex items-center justify-between mb-6">
-          <ArrowLeft className="text-gray-500 text-lg cursor-pointer" />
+          <ArrowLeft className="text-gray-500 text-lg cursor-pointer" onClick={() => navigate(-1)} />
           <div className="flex items-center flex-1 justify-center -ml-6">
             <BsBriefcaseFill className="text-purple-700 text-2xl mr-2" />
             <h1 className="text-lg font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">
@@ -245,7 +245,7 @@ export default function SignupPage() {
                 <input type="text" value={comRegNo} onChange={(e) => setComRegNo(e.target.value)} required className="w-full rounded-lg border border-gray-300 px-3 py-2" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
+                <label className="block text.sm font-medium text-gray-700 mb-1">Business Type</label>
                 <select value={businessType} onChange={(e) => setBusinessType(e.target.value)} required className="w-full rounded-lg border border-gray-300 px-3 py-2">
                   <option value="">Select Business Type</option>
                   <option value="Technology">Technology</option>
@@ -313,6 +313,9 @@ export default function SignupPage() {
           <Link to="/login" className="text-purple-600 hover:underline">
             Sign in here
           </Link>
+        </p>
+        <p className="mt-2 text-center text-xs">
+          <button className="text-gray-500 hover:underline" onClick={() => navigate("/")}>Back to Home</button>
         </p>
       </div>
     </div>

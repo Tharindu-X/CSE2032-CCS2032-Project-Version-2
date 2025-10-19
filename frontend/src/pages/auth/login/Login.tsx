@@ -50,7 +50,7 @@ const LoginForm: React.FC = () => {
       <div className="w-full max-w-md rounded-xl bg-white p-11 shadow-5xl">
         {/* Top Bar */}
         <div className="flex items-center justify-between mb-6">
-          <FaArrowLeft className="text-gray-500 text-lg cursor-pointer" />
+          <FaArrowLeft className="text-gray-500 text-lg cursor-pointer" onClick={() => navigate(-1)} />
           <div className="flex items-center flex-1 justify-center -ml-6">
             <BsBriefcaseFill className="text-purple-700 text-2xl mr-2" />
             <h1 className="text-lg font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 bg-clip-text text-transparent">
@@ -125,6 +125,9 @@ const LoginForm: React.FC = () => {
           <Link to="/register" className="text-purple-600 hover:underline">
             Create one here
           </Link>
+        </p>
+        <p className="mt-2 text-center text-xs">
+          <button className="text-gray-500 hover:underline" onClick={() => navigate("/")}>Back to Home</button>
         </p>
       </div>
     </div>
