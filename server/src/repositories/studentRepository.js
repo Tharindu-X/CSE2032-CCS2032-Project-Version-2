@@ -4,8 +4,8 @@ export const StudentRepository = {
   async create(studentData) {
     const sql = `
       INSERT INTO student 
-      (f_name, l_name, year, email, password, dgree, dep_name, reg_no, linkedin_url)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (f_name, l_name, year, email, password, dgree, dep_name, reg_no, linkedin_url, CV)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       studentData.f_name,
@@ -17,6 +17,7 @@ export const StudentRepository = {
       studentData.dep_name,
       studentData.reg_no,
       studentData.linkedin_url,
+      studentData.CV || '',
     ];
     const [result] = await pool.execute(sql, values);
     return result.insertId;
@@ -78,6 +79,7 @@ export const StudentRepository = {
 
   // Get recent applications for a student
   async getRecentApplications(email, limit = 5) {
+    const safeLimit = parseInt(limit) || 5;
     const [rows] = await pool.execute(`
       SELECT 
         a.application_id,
@@ -91,8 +93,8 @@ export const StudentRepository = {
       JOIN company c ON j.com_id = c.id
       WHERE s.email = ?
       ORDER BY a.application_date DESC
-      LIMIT ?
-    `, [email, limit]);
+      LIMIT ${safeLimit}
+    `, [email]);
     return rows;
   },
 
@@ -116,5 +118,25 @@ export const StudentRepository = {
       ORDER BY a.application_date DESC
     `, [email]);
     return rows;
+  },
+
+  // Check if student has already applied for a job
+  async checkExistingApplication(studentId, jobId) {
+    const [rows] = await pool.execute(`
+      SELECT application_id 
+      FROM application 
+      WHERE student_id = ? AND job_id = ?
+    `, [studentId, jobId]);
+    return rows[0] || null;
+  },
+
+  // Create a new job application
+  async createApplication(studentId, jobId) {
+    const sql = `
+      INSERT INTO application (student_id, job_id, status, application_date)
+      VALUES (?, ?, 'pending', NOW())
+    `;
+    const [result] = await pool.execute(sql, [studentId, jobId]);
+    return result.insertId;
   }
 };

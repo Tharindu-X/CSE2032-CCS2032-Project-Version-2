@@ -32,8 +32,8 @@ export default function Header() {
         <ul className="hidden md:flex items-center gap-2">
           {[
             { to: "/", label: "Home" },
-            { to: "/jobs", label: "Jobs" },
-            { to: "/companies", label: "Companies" },
+            { to: "/login", label: "Jobs" },
+            { to: "/login", label: "Companies" },
             { to: "#about", label: "About", anchor: true },
             { to: "#services", label: "Services", anchor: true },
           ].map((l, i) => (

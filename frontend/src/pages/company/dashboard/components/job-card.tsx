@@ -161,7 +161,7 @@ export function JobCard({ job }: JobCardProps) {
               Closes {formatDate(job.closing_date)}
             </div>
           </div>
-          <Link to={`/job/${job.job_id}/applications`}>
+          <Link to={`/company/job/${job.job_id}/applications`}>
             <Button variant="outline" size="sm">
               View Details
             </Button>

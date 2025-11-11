@@ -114,6 +114,37 @@ const getStudentSettings = async (req, res) => {
   }
 };
 
+const applyForJob = async (req, res) => {
+  try {
+    const studentId = req.user?.id; // From JWT token
+    const { jobId } = req.body;
+
+    if (!studentId) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Student not authenticated' });
+    }
+
+    if (!jobId) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Job ID is required' });
+    }
+
+    // Check if student has already applied
+    const existingApplication = await StudentRepository.checkExistingApplication(studentId, jobId);
+    if (existingApplication) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: 'You have already applied for this job' });
+    }
+
+    // Create new application
+    await StudentRepository.createApplication(studentId, jobId);
+    return res.status(HttpStatus.CREATED).json({ message: 'Application submitted successfully' });
+
+  } catch (error) {
+    console.error('Error applying for job:', error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
+      message: 'An error occurred while submitting your application' 
+    });
+  }
+};
+
 const updateStudent = async (req, res) => {
   // Implementation for updating student profile
   // This can be implemented later if needed
@@ -132,6 +163,7 @@ export {
   getRecentApplications,
   getStudentApplications,
   getStudentSettings,
+  applyForJob,
   updateStudent,
   getSreachResults
 };

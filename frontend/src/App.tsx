@@ -9,6 +9,7 @@ import Registration from "./pages/auth/register/Registration";
 import Jobs from "./pages/public/jobs/Jobs";
 import Companies from "./pages/public/companies/Companies";
 import Category from "./pages/public/category/Category";
+import JobDetailPage from "./pages/public/jobs/jobDetails/JobDetailPage.tsx";
 
 // Company Pages
 import CompanyDashboard from "./pages/company/dashboard/CompanyDashboard";
@@ -50,6 +51,7 @@ export default function App() {
       <Route path="/register" element={<Registration />} />
       <Route path="/signup" element={<Registration />} />
       <Route path="/jobs" element={<Jobs />} />
+      <Route path="/jobs/:jobId" element={<JobDetailPage />} />
       <Route path="/companies" element={<Companies companies={[]} />} />
       <Route path="/category" element={<Category />} />
 
@@ -126,7 +128,6 @@ export default function App() {
       <Route path="/companydashboard" element={<Navigate to="/company/dashboard" replace />} />
       <Route path="/addjob" element={<Navigate to="/company/post-job" replace />} />
       <Route path="/edit-profile" element={<Navigate to="/company/edit-profile" replace />} />
-      <Route path="/job/:jobId/applications" element={<Navigate to="/company/job/:jobId/applications" replace />} />
       <Route path="/dashboard" element={<Navigate to="/student/dashboard" replace />} />
       <Route path="/applications" element={<Navigate to="/student/applications" replace />} />
       <Route path="/settings" element={<Navigate to="/student/settings" replace />} />

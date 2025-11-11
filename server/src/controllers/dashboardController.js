@@ -57,6 +57,28 @@ export const getJobApplications = async (req, res) => {
   const { jobId } = req.params;
 
   try {
+    // First, get the job details
+    const [jobDetails] = await db.query(
+      `
+      SELECT 
+        j.job_id,
+        j.job_title,
+        j.com_id,
+        c.com_name
+      FROM job j
+      JOIN company c ON j.com_id = c.id
+      WHERE j.job_id = ?
+      `,
+      [jobId]
+    );
+
+    if (jobDetails.length === 0) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    const job = jobDetails[0];
+
+    // Then get all applications
     const [applications] = await db.query(
       `
       SELECT 
@@ -71,18 +93,55 @@ export const getJobApplications = async (req, res) => {
         s.email, 
         s.dgree, 
         s.dep_name, 
-        s.reg_no
+        s.reg_no,
+        s.linkedin_url
       FROM application a
       JOIN student s ON a.student_id = s.id
       WHERE a.job_id = ?
+      ORDER BY a.application_date DESC
       `,
       [jobId]
     );
 
-    // Return empty array if no applications
-    res.json(applications); // this will be [] if no rows
+    // Return job details along with applications
+    res.json({
+      job: {
+        job_id: job.job_id,
+        job_title: job.job_title,
+        com_name: job.com_name
+      },
+      applications: applications
+    });
   } catch (error) {
     console.error('Error fetching job applications:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Update application status (approve/reject)
+export const updateApplicationStatus = async (req, res) => {
+  const { applicationId } = req.params;
+  const { status } = req.body;
+
+  // Validate status
+  const validStatuses = ['pending', 'approved', 'rejected', 'interview', 'selected'];
+  if (!status || !validStatuses.includes(status)) {
+    return res.status(400).json({ message: 'Invalid status. Must be one of: pending, approved, rejected, interview, selected' });
+  }
+
+  try {
+    const [result] = await db.execute(
+      'UPDATE application SET status = ? WHERE application_id = ?',
+      [status, applicationId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    res.json({ message: 'Application status updated successfully', status });
+  } catch (error) {
+    console.error('Error updating application status:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

@@ -186,7 +186,7 @@ export const loginUser = async (req, res) => {
         role: 'admin', 
         userId: admin.id,
         email: admin.email,
-        name: admin.name || 'Admin',
+        name: admin.admin_name || 'Admin',
         token: generateToken(admin.id, 'admin') 
       });
     }

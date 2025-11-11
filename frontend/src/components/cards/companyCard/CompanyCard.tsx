@@ -1,10 +1,13 @@
 // CompanyCard.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Users, Briefcase, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface JobListing {
-  title: string;
-  type: string;
+  job_id: number;
+  job_title: string;
+  job_type: string;
   location: string;
 }
 
@@ -22,6 +25,7 @@ export interface CompanyCardProps {
 }
 
 const CompanyCard: React.FC<CompanyCardProps> = ({
+  id,
   name,
   logo,
   industry,
@@ -33,6 +37,31 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
   jobListings = []
 }) => {
   const [showJobs, setShowJobs] = useState(false);
+  const [jobs, setJobs] = useState<JobListing[]>(jobListings);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Fetch jobs when "View Jobs" is clicked
+  useEffect(() => {
+    const fetchJobs = async () => {
+      if (showJobs && jobs.length === 0) {
+        setLoading(true);
+        try {
+          const response = await axios.get(`http://localhost:5000/api/company/${id}/jobs`);
+          setJobs(response.data.jobs || []);
+        } catch (error) {
+          console.error('Error fetching jobs:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchJobs();
+  }, [showJobs, id, jobs.length]);
+
+  const handleJobClick = (jobId: number) => {
+    navigate(`/jobs/${jobId}`);
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
@@ -88,23 +117,35 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
         </div>
 
         {/* Job Listings (Collapsible) */}
-        {showJobs && jobListings.length > 0 && (
-          <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-            {jobListings.map((job, index) => (
-              <div key={index} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                <h4 className="font-semibold text-gray-800 text-sm mb-1">{job.title}</h4>
-                <div className="flex items-center gap-3 text-xs text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <Briefcase className="w-3 h-3" />
-                    {job.type}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {job.location}
-                  </span>
-                </div>
+        {showJobs && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            {loading ? (
+              <div className="text-center text-gray-500 py-4">Loading jobs...</div>
+            ) : jobs.length > 0 ? (
+              <div className="space-y-3">
+                {jobs.map((job) => (
+                  <div 
+                    key={job.job_id} 
+                    onClick={() => handleJobClick(job.job_id)}
+                    className="p-3 bg-gray-50 rounded-lg hover:bg-purple-50 hover:border-purple-300 border border-transparent transition-all cursor-pointer"
+                  >
+                    <h4 className="font-semibold text-gray-800 text-sm mb-1">{job.job_title}</h4>
+                    <div className="flex items-center gap-3 text-xs text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <Briefcase className="w-3 h-3" />
+                        {job.job_type}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {job.location}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="text-center text-gray-500 py-4">No jobs available</div>
+            )}
           </div>
         )}
       </div>

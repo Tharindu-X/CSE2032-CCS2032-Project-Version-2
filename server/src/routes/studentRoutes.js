@@ -1,5 +1,6 @@
 import express from "express";
 import * as studentController from "../controllers/studentController.js";
+import { authenticateToken } from '../middlewears/authMiddleware.js';
 
 const { 
   updateStudent, 
@@ -9,7 +10,8 @@ const {
   getRecentApplications, 
   getStudentApplications, 
   getSreachResults,
-  getStudentSettings
+  getStudentSettings,
+  applyForJob
 } = studentController;
 
 const router = express.Router();
@@ -18,6 +20,8 @@ const router = express.Router();
 // Search routes
 router.get("/search/results", getSreachResults);
 
+// Job application routes (protected)
+router.post("/apply", authenticateToken, applyForJob);
 
 // Student dashboard routes
 router.get("/:email/stats", getStudentStats);

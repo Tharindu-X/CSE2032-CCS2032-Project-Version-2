@@ -5,8 +5,9 @@ dotenv.config();
 const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
-  password: '',
-  database: 'job_cgu',
+  password: 'KCgy4057',
+  database: 'CGU',
+  port: 3310,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

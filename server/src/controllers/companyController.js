@@ -1,4 +1,5 @@
 import { CompanyRepository } from '../repositories/companyRepository.js';
+import { JobRepository } from '../repositories/jobRepository.js';
 import pool from '../config/db.js';
 
 export const getAllCompanies = async (req, res) => {
@@ -115,6 +116,34 @@ export const approveCompany = async (req, res) => {
     res.json({ message: 'Company approved and activated successfully' });
   } catch (error) {
     console.error('Error approving company:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getCompanyJobs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get company info
+    const company = await CompanyRepository.findById(id);
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+    
+    // Get all jobs for this company
+    const jobs = await JobRepository.getJobsByCompanyId(id);
+    
+    res.json({
+      company: {
+        id: company.id,
+        name: company.com_name,
+        industry: company.bussiness_type,
+        location: company.address
+      },
+      jobs: jobs
+    });
+  } catch (error) {
+    console.error('Error fetching company jobs:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
